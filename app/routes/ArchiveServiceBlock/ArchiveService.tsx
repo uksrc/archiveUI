@@ -1,3 +1,6 @@
+import { SearchBox } from "../../elements/SearchBox";
+
+
 // basic layout of the Archive Service page
 //
 
@@ -10,6 +13,7 @@ export function ArchiveService()
             <div className="min-w-[76vw] space-y-6 px-6 bg-gray-200 p-[10px]">
                 <div className="flex flex-col items-center gap-4 bg-blue-600 text-gray-200 p-4 rounded-lg shadow-xl shadow-gray-500/60 h-[30vh]">
                     <h1 className="text-3xl font-bold text-center">SEARCHING WORKFLOW</h1>
+                    <SearchBox />
                 </div>
                 <div className="flex flex-col items-center gap-4 bg-purple-600 text-gray-200 p-4 rounded-lg shadow-xl shadow-gray-500/60 h-[60vh]">
                     <h1 className="text-3xl font-bold text-center">DATA TILES HERE</h1>
