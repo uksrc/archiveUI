@@ -8,6 +8,12 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import type { 
+  LinksFunction,
+  LoaderFunctionArgs,
+  ActionFunctionArgs,
+} from "react-router";
+
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
