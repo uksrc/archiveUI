@@ -1,6 +1,6 @@
 
-// search badge data
-export type SearchBadge = {
+// Filter badge data
+export type FilterBadgeType = {
     label?: string;
     query?: string;
     value?: string;
