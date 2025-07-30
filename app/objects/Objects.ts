@@ -1,6 +1,6 @@
 
 // Filter badge data
-export type FilterBadgeType = {
+export type FilterFeatureBadgeType = {
     label?: string;
     query?: string;
     value?: string;

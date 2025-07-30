@@ -1,4 +1,4 @@
-import { FilterHandler } from "../../elements/FilterHandler";
+import FilterHandler from "../../elements/FilterHandler";
 
 
 // basic layout of the Archive Service page
