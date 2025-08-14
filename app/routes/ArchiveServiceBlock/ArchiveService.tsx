@@ -1,4 +1,7 @@
 import FilterHandler from "../../elements/FilterHandler";
+import DataTile from "../../elements/DataTile";
+import { proxyTiles } from "~/objects/Proxy";
+import type { DataTileDataType } from "~/objects/Objects";
 
 
 // basic layout of the Archive Service page
@@ -6,6 +9,8 @@ import FilterHandler from "../../elements/FilterHandler";
 
 export function ArchiveService() 
 {
+  const dataTileData: DataTileDataType[] = proxyTiles();
+
   return (
     <div className="min-h-[100vh] bg-gray-300">
       <main className="flex items-center justify-center pt-6 pb-4 min-h-[100vh] bg-gray-100 mx-auto">
@@ -17,6 +22,12 @@ export function ArchiveService()
                 </div>
                 <div className="flex flex-col items-center gap-4 bg-purple-600 text-gray-200 p-4 rounded-lg shadow-xl shadow-gray-500/60 h-[60vh]">
                     <h1 className="text-3xl font-bold text-center">DATA TILES HERE</h1>
+                    <div className="grid grid-cols-5 gap-4">
+                       { 
+                        dataTileData.map((dataTileData: DataTileDataType, index: number) =>
+                        <DataTile key={index} {...dataTileData} />
+                       )}
+                    </div>
                 </div>
             </div>
       </main>
