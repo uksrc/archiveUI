@@ -1,8 +1,6 @@
 // placeholder for FilterHandler component
-//import { FilterBadge as FilterBadgeGenerator } from "./FilterBadge";
 import { useState } from "react";
 import type { FilterFeatureBadgeType } from "../objects/Objects";
-//import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import type { Route } from "../+types/root";
 import invariant from "tiny-invariant"; 
 
