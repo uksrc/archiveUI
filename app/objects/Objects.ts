@@ -12,6 +12,7 @@ export type DataTileDataType = {
     projectName?: string;
     runName?: string;
     sources?: string[];
+    sourceData?: SourceType[];
     band?: string;
     startDate?: Date;
     endDate?: Date;
@@ -23,3 +24,11 @@ export type DataTileDataType = {
     freqUnit?: string;
     urlToSource?: string;
 }
+
+// sources type
+export type SourceType = {
+    name: string;
+    ra: string; // right ascension in degrees
+    dec: string; // declination in degrees
+}
+
