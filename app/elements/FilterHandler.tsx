@@ -45,7 +45,8 @@ export default function FilterHandler()
     <div className="flex items-center justify-center p-4">
       <form action={AddFilter} className="flex flex-col min-w-[80vw] max-w-[80vw]">
         <div className="flex flex-none min-w-[60%] max-w-[60%] m-auto rounded-md text-center focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800">
-          <select className="flex min-w-[12vw] 
+          <select className="dropdown-content dropdown
+                            flex min-w-[12vw] 
                             rounded-l-md 
                             bg-gradient-to-tr from-blue-300 via-blue-200 to-gray-200 
                             text-center text-gray-900
@@ -60,6 +61,7 @@ export default function FilterHandler()
             <option value="Dec">Dec [° m s]</option>
             <option value="Band">Band</option>
             <option value="Freq">Frequency [GHz]</option>
+            <option value="Date">Date [dd/mm/yyyy]</option>
           </select>
           <input
             type="text"

@@ -23,6 +23,7 @@ export type DataTileDataType = {
     frequency?: string;
     freqUnit?: string;
     urlToSource?: string;
+    targets?: string[];
 }
 
 // sources type

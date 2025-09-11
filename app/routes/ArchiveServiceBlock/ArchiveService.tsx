@@ -16,12 +16,12 @@ export function ArchiveService()
 
             <div className="min-w-[76vw] space-y-6 px-6 bg-gray-200 p-[10px]">
                 <div className="flex flex-col items-center gap-4 bg-blue-600 text-gray-200 p-4 rounded-lg shadow-xl shadow-gray-500/60 h-[30vh] min-h-[300px]">
-                    <h1 className="text-3xl font-bold text-center">FIND RELEVANT DATPROD WORKFLOW</h1>
+                    <h1 className="text-3xl font-bold text-center">Filter Features</h1>
                     <FilterHandler />
                 </div>
-                <div className="flex flex-col items-center gap-4 bg-purple-600 text-gray-200 p-4 rounded-lg shadow-xl shadow-gray-500/60 h-[60vh]">
-                    <h1 className="text-3xl font-bold text-center">Date Products</h1>
-                    <div className="grid grid-cols-9 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[50vh] w-[100%]">
+                <div className="flex flex-col items-center gap-4 bg-linear-to-l from-cyan-500 to-blue-500 text-gray-200 p-4 rounded-lg shadow-xl shadow-gray-500/60 h-[60vh]">
+                    <h1 className="text-3xl font-bold text-center">Data Products</h1>
+                    <div className="pl-[12px] pt-[12px] pb-[12px] grid grid-cols-9 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[50vh] w-[100%]">
                        { 
                         dataTileData.map((dataTileData: DataTileDataType, index: number) =>
                         <DataTile key={index} {...dataTileData} />
