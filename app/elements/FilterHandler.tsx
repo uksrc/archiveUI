@@ -44,11 +44,11 @@ export default function FilterHandler()
     <>
     <div className="flex items-center justify-center p-4">
       <form action={AddFilter} className="flex flex-col min-w-[80vw] max-w-[80vw]">
-        <div className="flex flex-none min-w-[60%] max-w-[60%] m-auto rounded-md text-center focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800">
+        <div className="flex flex-none min-w-[60%] max-w-[60%] m-auto rounded-md text-center focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800 shadow-md">
           <select className="dropdown-content dropdown
                             flex min-w-[12vw] 
                             rounded-l-md 
-                            bg-gradient-to-tr from-blue-300 via-blue-200 to-gray-200 
+                            bg-linear-to-br from-purple-200 to-fuchsia-300
                             text-center text-gray-900
                             focus:outline-none focus:ring-2 focus:ring-violet-500 focus:rounded-tl-md"
                       name="filter-feature" 
@@ -62,6 +62,8 @@ export default function FilterHandler()
             <option value="Band">Band</option>
             <option value="Freq">Frequency [GHz]</option>
             <option value="Date">Date [dd/mm/yyyy]</option>
+            <option value="Project">Project Name</option>
+            <option value="TargetName">Target Name</option>
           </select>
           <input
             type="text"
@@ -71,7 +73,7 @@ export default function FilterHandler()
           />
         </div>
         <div className="flex flex-none mt-2">
-          <button type="submit" className="flex flex-none m-auto px-2 py-2 bg-blue-900 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800 shadow-md">
+          <button type="submit" className="flex flex-none m-auto px-2 py-2 bg-linear-to-br from-purple-200 to-fuchsia-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800 shadow-md">
             <p className="text-center text-white m-auto">Add Filter</p>
           </button>
         </div>

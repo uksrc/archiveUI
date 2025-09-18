@@ -104,7 +104,7 @@ export default function DataTile(dataProduct: DataTileDataType ){
         <>
         <div  onMouseOver={() => HideElement(GenerateId(dataProduct))} onMouseOut={() => ShowElement(GenerateId(dataProduct))} className="cursor-pointer h-[140px] w-[150px]">
             <a  href={dataProduct.urlToSource} target="_blank" rel="noopener noreferrer" className="w-[100%]">
-                <div className="gb_card flex flex-col items-center gap-1 bg-purple-200 text-gray-200 p-1 rounded-lg shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out">
+                <div className="gb_card flex flex-col items-center gap-1 bg-linear-to-br from-purple-200 to-fuchsia-300 text-gray-200 p-1 rounded-lg shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out">
                     <h1 className="text-m p-0 font-bold text-center text-gray-800">{dataProduct.projectName}</h1>
                     <p className={"text-xs p-0 text-gray-800 " + GenerateId(dataProduct)}>{ProcessSourceData(dataProduct.sourceData)}</p>
                     <p className="p-0 font-semibold bg-black w-[100%] text-center">{ProcessDate({date: dataProduct.startDate, separator: "\/"})}</p>
