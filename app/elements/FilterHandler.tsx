@@ -42,10 +42,10 @@ export default function FilterHandler()
 
   return (
     <>
-    <div className="flex items-center justify-center p-4">
+    <div className="flex items-center justify-center m-auto p-4">
       <form action={AddFilter} className="flex flex-col min-w-[80vw] max-w-[80vw]">
-        <div className="flex flex-none min-w-[60%] max-w-[60%] m-auto rounded-md text-center focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800 shadow-md">
-          <select className="dropdown-content dropdown
+        <div className="flex flex-1 min-w-[60%] max-w-[60%] m-auto rounded-md text-center focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800 shadow-md">
+          <select className="gb_dropdown_content gb_dropdown
                             flex min-w-[12vw] 
                             rounded-l-md 
                             bg-linear-to-br from-purple-200 to-fuchsia-300
@@ -69,14 +69,15 @@ export default function FilterHandler()
             type="text"
             name="filter-value"
             placeholder="Filter items..."
-            className="flex flex-3 w-full p-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-violet-500 text-gray-900 text-centre bg-white shadow-md"
+            className="flex flex-4 w-full p-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 text-gray-900 text-centre bg-white shadow-md"
           />
-        </div>
-        <div className="flex flex-none mt-2">
-          <button type="submit" className="flex flex-none m-auto px-2 py-2 bg-linear-to-br from-purple-200 to-fuchsia-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800 shadow-md">
-            <p className="text-center text-white m-auto">Add Filter</p>
+
+          <button type="submit" className="flex flex-1 m-auto px-2 py-2 bg-linear-to-br from-purple-200 to-fuchsia-300 text-gray-900 rounded-r-md focus:outline-none focus:ring-2 focus:ring-violet-500 hover:bg-blue-800 shadow-md">
+            <p className="text-center m-auto">Add Filter</p>
           </button>
+
         </div>
+        
       </form>
     </div>
     <div className="flex flex-wrap items-center gap-2 py-0 px-4">
