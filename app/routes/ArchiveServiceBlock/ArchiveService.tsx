@@ -18,10 +18,10 @@ export function ArchiveService()
             <div className="flex flex-col items-center justify-center min-w-[99vw] h-[94vh] space-y-6 px-6 bg-linear-to-l from-cyan-500 to-blue-500 p-[10px] rounded-md">
               <h1 className="text-5xl font-bold text-center text-gray-200">e-Merlin Data Archive</h1>
 
-                <div className="max-w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[20vh] min-h-[250px]">
+                <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[20vh] min-h-[250px]">
                     <FilterHandler />
                 </div>
-                <div className="max-w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[60vh]">
+                <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[60vh]">
                     <h1 className="text-3xl font-bold text-center">Data Products</h1>
                     <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-9 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
                        { 
