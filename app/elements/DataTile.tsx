@@ -18,6 +18,7 @@ function FormatBand(band: string | undefined, id: string) {
         case 'K':
             return (
                 <span className={id + "text-center px-1 rounded-sm bg-pink-400 text-grey-200 font-bold"}>{band}</span>
+                
             );
         default:
             return (
