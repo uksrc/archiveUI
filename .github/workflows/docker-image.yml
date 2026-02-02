@@ -23,7 +23,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: docker/login-action@v3
         with:
-          registry: $HARBOR_REGISTRY
+          registry: ${{ vars.HARBOR_REGISTRY }}
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
@@ -44,6 +44,6 @@ jobs:
           context: .
           push: true
           tags: |
-            $HARBOR_REGISTRY/$HARBOR_PROJECT/${{ secrets.IMAGE_NAME }}:${{ github.ref_name }}
-            $HARBOR_REGISTRY/$HARBOR_PROJECT/${{ secrets.IMAGE_NAME }}:latest
+            ${{ vars.HARBOR_REGISTRY }}/${{ vars.HARBOR_PROJECT }}/${{ secrets.IMAGE_NAME }}:${{ github.ref_name }}
+            ${{ vars.HARBOR_REGISTRY }}/${{ vars.HARBOR_PROJECT }}/${{ secrets.IMAGE_NAME }}:latest
 
