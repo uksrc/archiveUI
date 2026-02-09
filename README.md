@@ -53,6 +53,9 @@ docker build -t my-app .
 
 # Run the container
 docker run -p 3000:3000 my-app
+
+# As this service has a domain suffix, remember to add this to the URL
+http://localhost:3000/archive-gui
 ```
 
 The containerized application can be deployed to any platform that supports Docker, including:
