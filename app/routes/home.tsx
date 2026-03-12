@@ -1,5 +1,10 @@
 import type { Route } from "./+types/home";
-import { ArchiveService } from "./ArchiveServiceBlock/ArchiveService";
+import { useLoaderData } from "react-router";
+import {
+  ArchiveService,
+  loader as archiveServiceLoader,
+  type Observation,
+} from "./ArchiveServiceBlock/ArchiveService";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,6 +13,11 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export async function loader({ request }: Route.LoaderArgs) {
+  return archiveServiceLoader({ request });
+}
+
 export default function Home() {
-  return <ArchiveService />;
+  const observations = (useLoaderData() as Observation[] | undefined) ?? [];
+  return <ArchiveService observations={observations} />;
 }

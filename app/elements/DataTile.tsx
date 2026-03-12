@@ -111,7 +111,7 @@ export default function DataTile(dataProduct: DataTileDataType ){
                     <p className="p-0 font-semibold bg-black w-[100%] text-center">{ProcessDate({date: dataProduct.startDate, separator: "\/"})}</p>
                     <p className={GenerateId(dataProduct)}>
                         {/* <span className="text-gray-800 font-bold">{dataProduct.band}</span> */}
-                        {FormatBand(dataProduct.band, GenerateId(dataProduct))}
+                        {FormatBand(dataProduct.band?.[0], GenerateId(dataProduct))}
                         <span className="p-0 text-sm text-gray-800">{ ' (' + dataProduct.frequency + ' ' + dataProduct.freqUnit +')  '}</span>
                     </p>
                     <p className={"p-0 text-gray-800 " + GenerateId(dataProduct)}>
