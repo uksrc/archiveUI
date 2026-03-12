@@ -1,0 +1,493 @@
+@import url('SRC_colours_properties.css');
+
+/*//////////////////////////////////////////////
+///
+////// SRCnet/UKSRC: SKA COLOUR PALETTE - CLASSES
+///
+///  Author: Benjamin Green  
+///  Commissioner: Chris Skipper - TEAM MANGO
+///
+//*/
+
+
+/*//////////////////////////////////////////////
+///
+///  Classes 
+///
+//*/  
+
+/*//   BASE SCHEME   //*/
+.srcbg-light-base {
+	background-color: var(--ref-baseline-white);
+  }
+.srcbg-dark-base {
+	background-color: var(--ref-baseline-black);
+  }
+.srctx-black {
+	color: var(--ref-baseline-black);
+  }
+.srctx-white {
+	color: var(--ref-baseline-white);
+  }
+
+/*//   CORE SCHEME   //*/
+.srcbg-primary {
+	background-color: var(--king-pink-princ);
+  }
+.srcbg-primary-muted {
+	background-color: var(--king-pink-muted);
+  }
+.srcbg-primary-transition {
+	background-image: linear-gradient(to bottom right, var(--king-pink-princ), var(--king-pink-muted));
+  }
+.srctx-primary {
+    color: var(--king-pink-dark);
+  }
+  
+
+.srcbg-secondary {
+	background-color: var(--king-blue-princ);
+  }
+.srcbg-secondary-muted {
+	background-color: var(--king-blue-muted);
+  }
+.srcbg-secondary-transition {
+	background-image: linear-gradient(to bottom right, var(--king-blue-princ), var(--king-blue-muted));
+  }	
+.srctx-secondary {
+    color: var(--king-blue-dark);
+  }
+
+.srcbg-tertiary {
+	background-color: var(--king-purple-princ);
+  }
+.srcbg-tertiary-muted {
+	background-color: var(--king-purple-muted);
+  }
+.srcbg-tertiary-transition {
+	background-image: linear-gradient(to bottom right, var(--king-purple-princ), var(--king-purple-muted));
+  }
+.srctx-tertiary {
+    color: var(--king-purple-dark);
+  }
+
+
+/*//   SEMANTIC SCHEME   //*/
+.srcbg-danger {
+	background-color: var(--smntc-red-princ);
+  }
+.srcbg-danger-muted {
+	background-color: var(--smntc-red-muted);
+  }
+.srcbg-danger-transition {
+	background-image: linear-gradient(to bottom right, var(--smntc-red-princ), var(--smntc-red-muted));
+  }
+.srctx-danger {
+    color: var(--smntc-red-dark);
+  }
+
+.srcbg-warning {
+	background-color: var(--smntc-orange-princ);
+  }
+.srcbg-warning-muted {
+	background-color: var(--smntc-orange-muted);
+  }
+.srcbg-warning-transition {
+	background-image: linear-gradient(to bottom right, var(--smntc-orange-princ), var(--smntc-orange-muted));
+  }
+.srctx-warning {
+    color: var(--smntc-orange-dark);
+  }
+
+.srcbg-yellow {
+	background-color: var(--smntc-yellow-princ);
+  }
+.srcbg-yellow-muted {
+	background-color: var(--smntc-yellow-muted);
+  }
+.srcbg-yellow-transition {
+	background-image: linear-gradient(to bottom right, var(--smntc-yellow-princ), var(--smntc-yellow-muted));
+  }
+.srctx-yellow {
+    color: var(--smntc-yellow-dark);
+  }
+
+.srcbg-success {
+	background-color: var(--smntc-green-princ);
+  }
+.srcbg-success-muted {
+	background-color: var(--smntc-green-muted);
+  }
+.srcbg-success-transition {
+	background-image: linear-gradient(to bottom right, var(--smntc-green-princ), var(--smntc-green-muted));
+  }
+.srctx-success {
+    color: var(--smntc-green-dark);
+  }
+
+.srcbg-info {
+	background-color: var(--smntc-blue-princ);
+  }
+.srcbg-info-muted {
+	background-color: var(--smntc-blue-muted);
+  }
+.srcbg-info-transition {
+	background-image: linear-gradient(to bottom right, var(--smntc-blue-princ), var(--smntc-blue-muted));
+  }
+.srctx-info {
+    color: var(--smntc-blue-dark);
+  }
+
+/*//////////////////////////////////////////////*/
+/*////  DARK SCHEMES  ////*/
+
+/*//  BLUE DARK GRADIENT SCHEME  //*/
+/*/ EACH ARM TENDS TOWARDS THE CENTRAL PURPLE /*/
+/*/ 1 BRIGHTEST - 13 CLOSEST TO BASE /*/
+.srcbg-dark-bl-1{
+	background-color: var(--scale-dark-1M);
+}
+.srcbg-dark-bl-2{
+	background-color: var(--scale-dark-2L);
+}
+.srcbg-dark-bl-3{
+	background-color: var(--scale-dark-3K);
+}
+.srcbg-dark-bl-4{
+	background-color: var(--scale-dark-4J);
+}
+.srcbg-dark-bl-5{
+	background-color: var(--scale-dark-5I);
+}
+.srcbg-dark-bl-6{
+	background-color: var(--scale-dark-6H);
+}
+.srcbg-dark-bl-7{
+	background-color: var(--scale-dark-7G);
+}
+.srcbg-dark-bl-8{
+	background-color: var(--scale-dark-8H);
+}
+.srcbg-dark-bl-9{
+	background-color: var(--scale-dark-9I);
+}
+.srcbg-dark-bl-10{
+	background-color: var(--scale-dark-10J);
+}
+.srcbg-dark-bl-11{
+	background-color: var(--scale-dark-11K);
+}
+.srcbg-dark-bl-12{
+	background-color: var(--scale-dark-12L);
+}
+.srcbg-dark-bl-13{
+	background-color: var(--scale-dark-13M);
+}
+
+/*//  PINK DARK GRADIENT SCHEME  //*/
+/*/ EACH ARM TENDS TOWARDS THE CENTRAL PURPLE /*/
+/*/ 1 BRIGHTEST - 13 CLOSEST TO BASE /*/
+.srcbg-dark-pi-1{
+	background-color: var(--scale-dark-1A);
+}
+.srcbg-dark-pi-2{
+	background-color: var(--scale-dark-2B);
+}
+.srcbg-dark-pi-3{
+	background-color: var(--scale-dark-3C);
+}
+.srcbg-dark-pi-4{
+	background-color: var(--scale-dark-4D);
+}
+.srcbg-dark-pi-5{
+	background-color: var(--scale-dark-5E);
+}
+.srcbg-dark-pi-6{
+	background-color: var(--scale-dark-6F);
+}
+.srcbg-dark-pi-7{
+	background-color: var(--scale-dark-7G);
+}
+.srcbg-dark-pi-8{
+	background-color: var(--scale-dark-8F);
+}
+.srcbg-dark-pi-9{
+	background-color: var(--scale-dark-9E);
+}
+.srcbg-dark-pi-10{
+	background-color: var(--scale-dark-10D);
+}
+.srcbg-dark-pi-11{
+	background-color: var(--scale-dark-11C);
+}
+.srcbg-dark-pi-12{
+	background-color: var(--scale-dark-12B);
+}
+.srcbg-dark-pi-13{
+	background-color: var(--scale-dark-13A);
+}
+
+/*/ SATURATED DARK GRADIENT SCHEME  //*/
+/* EACH ARM TENDS TOWARDS THE CENTRAL PURPLE */
+/* a ps pink most, m blue most */
+.srcbg-dark-sa-a{
+	background-color: var(--scale-dark-1A);
+}	
+.srcbg-dark-sa-b{
+	background-color: var(--scale-dark-2B);
+}
+.srcbg-dark-sa-c{
+	background-color: var(--scale-dark-3C);
+}
+.srcbg-dark-sa-d{
+	background-color: var(--scale-dark-4D);
+}
+.srcbg-dark-sa-e{
+	background-color: var(--scale-dark-5E);
+}
+.srcbg-dark-sa-f{
+	background-color: var(--scale-dark-6F);
+}
+.srcbg-dark-sa-g{
+	background-color: var(--scale-dark-7G);
+}
+.srcbg-dark-sa-h{
+	background-color: var(--scale-dark-6H);
+}
+.srcbg-dark-sa-i{
+	background-color: var(--scale-dark-5I);
+}
+.srcbg-dark-sa-j{
+	background-color: var(--scale-dark-4J);
+}
+.srcbg-dark-sa-k{
+	background-color: var(--scale-dark-3K);
+}
+.srcbg-dark-sa-l{
+	background-color: var(--scale-dark-2L);
+}
+.srcbg-dark-sa-m{
+	background-color: var(--scale-dark-1M);
+}
+
+/*//  DESATURATED DARK GRADIENT SCHEME  //*/
+/*// EACH ARM TENDS TOWARDS THE CENTRAL PURPLE /*/
+/*/ a ps pink most, m blue most /*/
+.srcbg-dark-de-a{
+	background-color: var(--scale-dark-13A);
+}
+.srcbg-dark-de-b{
+	background-color: var(--scale-dark-12B);
+}
+.srcbg-dark-de-c{
+	background-color: var(--scale-dark-11C);
+}
+.srcbg-dark-de-d{
+	background-color: var(--scale-dark-10D);
+}
+.srcbg-dark-de-e{
+	background-color: var(--scale-dark-9E);
+}
+.srcbg-dark-de-f{
+	background-color: var(--scale-dark-8F);
+}
+.srcbg-dark-de-g{
+	background-color: var(--scale-dark-7G);
+}
+.srcbg-dark-de-h{
+	background-color: var(--scale-dark-8H);
+}
+.srcbg-dark-de-i{
+	background-color: var(--scale-dark-9I);
+}
+.srcbg-dark-de-j{
+	background-color: var(--scale-dark-10J);
+}
+.srcbg-dark-de-k{
+	background-color: var(--scale-dark-11K);
+}
+.srcbg-dark-de-l{
+	background-color: var(--scale-dark-12L);
+}
+.srcbg-dark-de-m{
+	background-color: var(--scale-dark-13M);
+}
+
+/*//////////////////////////////////////////////*/
+/*////  LIGHT SCHEMES  ////*/
+
+/*//  BLUE LIGHT GRADIENT SCHEME  //*/
+/*/ 1 BRIGHTEST - 13 CLOSEST TO BASE /*/
+/*/ EACH ARM TENDS TOWARDS THE CENTRAL PURPLE /*/
+
+.srcbg-light-bl-1{
+background-color: var(--scale-light-1M);
+}
+.srcbg-light-bl-2{
+background-color: var(--scale-light-2L);
+}
+.srcbg-light-bl-3{
+background-color: var(--scale-light-3K);
+}
+.srcbg-light-bl-4{
+background-color: var(--scale-light-4J);
+}
+.srcbg-light-bl-5{
+background-color: var(--scale-light-5I);
+}
+.srcbg-light-bl-6{
+background-color: var(--scale-light-6H);
+}
+.srcbg-light-bl-7{
+background-color: var(--scale-light-7G);
+}
+.srcbg-light-bl-8{
+background-color: var(--scale-light-8H);
+}
+.srcbg-light-bl-9{
+background-color: var(--scale-light-9I);
+}
+.srcbg-light-bl-10{
+background-color: var(--scale-light-10J);
+}
+.srcbg-light-bl-11{
+background-color: var(--scale-light-11K);
+}
+.srcbg-light-bl-12{
+background-color: var(--scale-light-12L);
+}
+.srcbg-light-bl-13{
+background-color: var(--scale-light-13M);
+}
+
+/*//  PINK LIGHT GRADIENT SCHEME  //*/
+/*/ EACH ARM TENDS TOWARDS THE CENTRAL PURPLE /*/
+/*/ 1 BRIGHTEST - 13 CLOSEST TO BASE /*/
+
+.srcbg-light-pi-1{
+background-color: var(--scale-light-1A);
+}
+.srcbg-light-pi-2{
+background-color: var(--scale-light-2B);
+}
+.srcbg-light-pi-3{
+background-color: var(--scale-light-3C);
+}
+.srcbg-light-pi-4{
+background-color: var(--scale-light-4D);
+}
+.srcbg-light-pi-5{
+background-color: var(--scale-light-5E);
+}
+.srcbg-light-pi-6{
+background-color: var(--scale-light-6F);
+}
+.srcbg-light-pi-7{
+background-color: var(--scale-light-7G);
+}
+.srcbg-light-pi-8{
+background-color: var(--scale-light-8F);
+}
+.srcbg-light-pi-9{
+background-color: var(--scale-light-9E);
+}
+.srcbg-light-pi-10{
+background-color: var(--scale-light-10D);
+}
+.srcbg-light-pi-11{
+background-color: var(--scale-light-11C);
+}
+.srcbg-light-pi-12{
+background-color: var(--scale-light-12B);
+}
+.srcbg-light-pi-13{
+background-color: var(--scale-light-13A);
+}
+
+/*/  SATURATED LIGHT GRADIENT SCHEME  //*/
+/*/ EACH ARM TENDS TOWARDS THE CENTRAL PURPLE /*/
+/*/ a ps pink most, m blue most /*/
+
+.srcbg-light-sa-a{
+background-color: var(--scale-light-1A);
+}
+.srcbg-light-sa-b{
+background-color: var(--scale-light-2B);
+}
+.srcbg-light-sa-c{
+background-color: var(--scale-light-3C);
+}
+.srcbg-light-sa-d{
+background-color: var(--scale-light-4D);
+}
+.srcbg-light-sa-e{
+background-color: var(--scale-light-5E);
+}
+.srcbg-light-sa-f{
+background-color: var(--scale-light-6F);
+}
+.srcbg-light-sa-g{
+background-color: var(--scale-light-7G);
+}
+.srcbg-light-sa-h{
+background-color: var(--scale-light-6H);
+}
+.srcbg-light-sa-i{
+background-color: var(--scale-light-5I);
+}
+.srcbg-light-sa-j{
+background-color: var(--scale-light-4J);
+}
+.srcbg-light-sa-k{
+background-color: var(--scale-light-3K);
+}
+.srcbg-light-sa-l{
+background-color: var(--scale-light-2L);
+}
+.srcbg-light-sa-m{
+background-color: var(--scale-light-1M);
+}
+
+/*//  DESATURATED LIGHT GRADIENT SCHEME  //*/
+/*/ EACH ARM TENDS TOWARDS THE CENTRAL PURPLE /*/
+/*/ a ps pink most, m blue most /*/
+
+.srcbg-light-de-a{
+background-color: var(--scale-light-13A);
+}
+.srcbg-light-de-b{
+background-color: var(--scale-light-12B);
+}
+.srcbg-light-de-c{
+background-color: var(--scale-light-11C);
+}
+.srcbg-light-de-d{
+background-color: var(--scale-light-10D);
+}
+.srcbg-light-de-e{
+background-color: var(--scale-light-9E);
+}
+.srcbg-light-de-f{
+background-color: var(--scale-light-8F);
+}
+.srcbg-light-de-g{
+background-color: var(--scale-light-7G);
+}
+.srcbg-light-de-h{
+background-color: var(--scale-light-8H);
+}
+.srcbg-light-de-i{
+background-color: var(--scale-light-9I);
+}
+.srcbg-light-de-j{
+background-color: var(--scale-light-10J);
+}
+.srcbg-light-de-k{
+background-color: var(--scale-light-11K);
+}
+.srcbg-light-de-l{
+background-color: var(--scale-light-12L);
+}
+.srcbg-light-de-m{
+background-color: var(--scale-light-13M);
+}

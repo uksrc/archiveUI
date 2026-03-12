@@ -1,0 +1,259 @@
+/*//////////////////////////////////////////////
+///
+////// SRCnet/UKSRC: SKA COLOUR PALETTE - PROPERTIES
+///
+///  Author: Benjamin Green  
+///  Commissioner: Chris Skipper - TEAM MANGO
+///
+//*/
+
+
+/*//////////////////////////////////////////////
+///
+///  Properties - Colours
+///
+//*/  
+
+@property --ref-baseline-white {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #fbf5fc;
+}
+
+@property --ref-baseline-black {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #1f1423;
+}
+
+/*//////////////////////////////////////////////*/
+
+@property --king-pink-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #e70068;
+}
+
+@property --king-pink-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #bf0060;
+}
+
+@property --king-pink-dark {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #960052;
+}
+
+
+@property --king-blue-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #0000e5;
+}
+
+@property --king-blue-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #0000bf;
+}
+
+@property --king-blue-dark {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #000096;
+}
+
+
+@property --king-purple-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #cc00e2;
+}
+
+@property --king-purple-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #a300ba;
+}
+
+@property --king-purple-dark {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #7B0091;
+}
+
+/*//////////////////////////////////////////////*/
+
+@property --smntc-red-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #dd3e00;
+}
+
+@property --smntc-red-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #b52b00;
+}
+
+@property --smntc-red-dark {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #8c1e00;
+}
+
+
+
+@property --smntc-orange-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #e09500;
+}
+
+@property --smntc-orange-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #b77500;
+}
+
+@property --smntc-orange-dark {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #8e5700;
+}
+
+
+
+@property --smntc-yellow-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #c1e200;
+}
+
+@property --smntc-yellow-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #a8ba00;
+}
+
+@property --smntc-yellow-dark {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #8a9100;
+}
+
+
+
+@property --smntc-green-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #00e572;
+}
+
+@property --smntc-green-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #00bc59;
+}
+
+@property --smntc-green-dark {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #009342;
+}
+
+
+
+@property --smntc-blue-princ {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #00a4e5;
+}
+
+@property --smntc-blue-muted {
+	syntax: "<color>";
+	inherits: false;
+	initial-value: #0090bc;
+}
+
+@property --smntc-blue-dark {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #007793;
+}
+/*//////////////////////////////////////////////*/
+
+:root {
+    /*/////////////////////////////////////////////*/
+    /*//   PINK DARK   //*/
+
+    --scale-dark-1A: var(--king-pink-princ);
+    --scale-dark-2B: #bc0362;
+    --scale-dark-3C: #a90559;
+    --scale-dark-4D: #8b0755;
+    --scale-dark-5E: #6e0a51;
+    --scale-dark-6F: #5d0a56;
+    --scale-dark-7G: #470b57;
+    --scale-dark-8F: #510c4b;
+    --scale-dark-9E: #600c45;
+    --scale-dark-10D: #570e38;
+    --scale-dark-11C: #500f30;
+    --scale-dark-12B: #43112b;
+    --scale-dark-13A: #321321;
+
+
+    /*/////////////////////////////////////////////*/
+    /*//   BLUE DARK   //*/
+
+    --scale-dark-1M: var(--king-blue-princ);
+    --scale-dark-2L: #1203a3;
+    --scale-dark-3K: #120593;
+    --scale-dark-4J: #1d077f;
+    --scale-dark-5I: #260a6b;
+    --scale-dark-6H: #390a64;
+    --scale-dark-7G: var(--scale-pink-dark-7);
+    --scale-dark-8H: #320c56;
+    --scale-dark-9I: #230c5c;
+    --scale-dark-10J: #1c1454;
+    --scale-dark-11K: #1b1b49;
+    --scale-dark-12L: #1d1d3d;
+    --scale-dark-13M: #16162d;
+
+
+    /*/////////////////////////////////////////////*/
+    /*//   PINK LIGHT   //*/
+
+    --scale-light-1A: var(--king-pink-princ);
+    --scale-light-2B: #db2281;
+    --scale-light-3C: #e03c90;
+    --scale-light-4D: #d955a2;
+    --scale-light-5E: #d56fb4;
+    --scale-light-6F: #c26fbb;
+    --scale-light-7G: #b87cc7;
+    --scale-light-8F: #cd88c7;
+    --scale-light-9E: #dc88c1;
+    --scale-light-10D: #eaa1cc;
+    --scale-light-11C: #f3b2d3;
+    --scale-light-12B: #f5c3dd;
+    --scale-light-13A: #f9e5ef;
+
+
+    /*/////////////////////////////////////////////*/
+    /*//   BLUE LIGHT   //*/
+
+    --scale-light-1M: var(--king-blue-princ);
+    --scale-light-2L: #3122c2;
+    --scale-light-3K: #493cc9;
+    --scale-light-4J: #6b55cc;
+    --scale-light-5I: #8b6fd0;
+    --scale-light-6H: #9e6fc9;
+    --scale-light-7G: var(--scale-pink-light-7);
+    --scale-light-8H: #af88d3;
+    --scale-light-9I: #9f88d8;
+    --scale-light-10J: #aea1e3;
+    --scale-light-11K: #b8b2ea;
+    --scale-light-12L: #c7c3ef;
+    --scale-light-13M: #e6e6f4;
+}
