@@ -34,7 +34,7 @@ type TargetPosition = {
 type Plane = { 
   _id: number; 
   id: string; 
-  energy?: { bounds?: { lower: number; upper: number }, bandpassNames: string[] };
+  energy?: { bounds?: { lower: number; upper: number }, bandpassName: string };
   time?: { bounds?: { lower: number; upper: number } };
   polarization?: { states: string[] };
 };
@@ -58,11 +58,73 @@ type ObservationsResponse = {
   observations: Observation[];
 };
 
+// export async function loader({ request }: { request: Request }) {
+//     const API_PORT = 8080; // <-- update this if the port changes
+//     const apiUrl = `http://localhost:${API_PORT}/archive/observations`;
+
+//     const res = await fetch(apiUrl, {
+//         method: "GET",
+//         signal: request.signal, // lest RR cancel if the user navigates away    
+//         headers: {
+//             "Accept": "application/json"
+//         }
+//     });
+
+//     if (!res.ok) {
+//         throw new Error(`Failed to fetch observations: ${res.status} ${res.statusText}`);
+//     }
+    
+//     const json = (await res.json()) as ObservationsResponse;
+
+//     // Minimal runtime guard so failures are obvious:
+//     if (!json || !Array.isArray(json.observations)) {
+//         throw new Response("Unexpected API response shape", { status: 502 });
+//     }
+
+//     return json.observations;
+
+    
+
+// }
+
+
 export async function loader({ request }: { request: Request }) {
     const API_PORT = 8080; // <-- update this if the port changes
-    const apiUrl = `http://localhost:${API_PORT}/archive/observations`;
 
-    const res = await fetch(apiUrl, {
+    const requestUrl = new URL(request.url);
+    //const incomingApiUrl = requestUrl.searchParams.get("apiUrl");
+    const incoming = requestUrl.searchParams;
+    
+    const apiUrl = new URL(`http://localhost:${API_PORT}/archive/search`);
+
+    const allowedParams = [
+      "ra", 
+      "dec", 
+      "radius",
+      "startDate",
+      "dateMin",
+      "dateMax",  
+      "target",
+      "project",
+      "telescope",
+      "instrument",
+      "band",
+      "freqMin",
+      "freqMax",
+      "page",
+      "size"
+    
+    ]; // define allowed query parameters for security
+
+    for (const key of allowedParams) {
+      const value = incoming.get(key);
+      if(value !== null && value !== "") //maybe indefined instead of ""?
+      {
+        apiUrl.searchParams.set(key, value);
+      }
+    }
+
+    const res = await fetch(apiUrl.toString(), {
         method: "GET",
         signal: request.signal, // lest RR cancel if the user navigates away    
         headers: {
@@ -71,7 +133,7 @@ export async function loader({ request }: { request: Request }) {
     });
 
     if (!res.ok) {
-        throw new Error(`Failed to fetch observations: ${res.status} ${res.statusText}`);
+        throw new Response("Failed to fetch observations:", {status: res.status, statusText: res.statusText});
     }
     
     const json = (await res.json()) as ObservationsResponse;
@@ -82,10 +144,8 @@ export async function loader({ request }: { request: Request }) {
     }
 
     return json.observations;
-
-    
-
 }
+
 
 function mapObservationToDataTile(observation: Observation): DataTileDataType {
   const firstPlane = observation.planes?.[0];
@@ -128,7 +188,8 @@ type ArchiveServiceProps = {
 
 export function ArchiveService({ observations = [] }: ArchiveServiceProps) 
 {
-  let dataTileData: DataTileDataType[] = proxyTiles() ?? [];
+  //let dataTileData: DataTileDataType[] = proxyTiles() ?? [];
+  let dataTileData: DataTileDataType[] = [];
 
   const dataFromServer: DataTileDataType[] = observations.map(mapObservationToDataTile); // transform to DataTileDataType[]
   dataTileData = dataFromServer.length > 0 ? dataFromServer : dataTileData; // use server data if available, otherwise fallback to proxy data
