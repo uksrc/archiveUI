@@ -20,6 +20,7 @@ export type DataTileDataType = {
     antennas?: string[];
     numberOfSources?: number;
     polarisation?: string[];
+    wavelength?: string;
     frequency?: string;
     freqUnit?: string;
     urlToSource?: string;

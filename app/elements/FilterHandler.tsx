@@ -99,6 +99,21 @@ export default function FilterHandler() {
 
   }
 
+
+  function convertFrequencyToHz(value: string, unit = "MHz"): string {
+    const unitLower = unit.toLowerCase();
+    if (unitLower === "hz") {
+      return value;
+    }
+    if (unitLower === "mhz") {
+      return (parseInt(value) * 1000000).toString();
+    }
+    if (unitLower === "ghz") {
+      return (parseInt(value) * 1000000000).toString();
+    }
+    return "-1";
+  }
+
   //function to handle adding a filter, checks the selected feature and value, validates them, and updates the URL search params accordingly. Also handles ranged filters for frequency and date.
   function addFilter(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -123,12 +138,11 @@ export default function FilterHandler() {
     if (RANGED_FILTERS.has(paramKey)) {
       const { min, max } = parseRange(filterValue);
       
-      
+   
       //formate date to ISO format for API if date filter
       if(paramKey === "dateMin") {
         //convert date to ISO format for API, if not in correct format alert user
         const minD = convertToISODate(min, 0);
-        let maxD = max ? convertToISODate(max, 1) : null;
         if (minD === null) {
           alert("Invalid date format. Please use dd/mm/yyyy or dd-mm-yyyy.");
           return;
@@ -138,14 +152,15 @@ export default function FilterHandler() {
       }
       else
       {
-        nextParams.set(paramKey, min);
+        nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
       }
 
       const maxKey = paramKey === "freqMin" ? "freqMax" : "dateMax";
       if(maxKey === "dateMax")
       {
         if(max === null) {
-          const maxD = convertToISODate(min, 1); //if max date is invalid, set it to the end of the min date
+          //const maxD = convertToISODate(min, 1); //if max date is invalid, set it to the end of the min date
+          const maxD = DateTime.now().toUTC().toISO();
           if(maxD !== null) {
           nextParams.set(maxKey, maxD);
           }
@@ -158,7 +173,7 @@ export default function FilterHandler() {
       else
       {
         if (max) {
-          nextParams.set(maxKey, max);
+          nextParams.set(maxKey, convertFrequencyToHz(max, "GHz"));
         } else {
           nextParams.delete(maxKey);
         }

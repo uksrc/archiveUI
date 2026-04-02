@@ -154,6 +154,7 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
   const states = firstPlane?.polarization?.states ?? [];
   const bandpass = firstPlane?.energy?.bandpassName;
   const target = observation.target;
+  const _C_ = 2998792458; // speed of light in m/s
 
   return {
     projectName: observation.collection,
@@ -163,8 +164,12 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
     band: bandpass,
     frequency:
       lower !== undefined && upper !== undefined
-        ? `${(Math.round(lower*0.0000001)/100)}-${(Math.round(upper*0.0000001)/100)}` // convert MHz to GHz for display
+        ? `${Math.round((_C_/lower*0.0000000001)*100)/100}-${Math.round((_C_/upper*0.0000000001)*100)/100}` // convert MHz to GHz for display
         : "unknown",
+    wavelength:
+      lower !== undefined && upper !== undefined
+        ? `${Math.round(lower*1000)/1000}-${Math.round(upper*1000)/1000}` 
+        : "unknown",  
     freqUnit: "GHz",
     polarisation: states,
     targets: observation.telescope.keywords ?? [],
