@@ -1,7 +1,7 @@
-import { useLoaderData } from "react-router";
-import DataTile from "~/elements/DataTile";
+import { useLoaderData, useNavigate } from "react-router";
 import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
+import FilterHandler from "../elements/FilterHandler";
 
 type Algorithm = { 
   _id: number; 
@@ -31,7 +31,7 @@ type TargetPosition = {
 type Plane = {
   _id: number; 
   id: string; 
-  energy?: { bounds?: { lower: number; upper: number },  bandpassNames: string[] };
+  energy?: { bounds?: { lower: number; upper: number },  bandpassName: string };
   //samples?: { energyBands?: { bandpassNames: string[] } };
   time?: { bounds?: { lower: number; upper: number } };
   polarization?: { states: string[] };
@@ -62,8 +62,9 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
   const upper = firstPlane?.energy?.bounds?.upper;
   const states = firstPlane?.polarization?.states ?? [];
   const bandpass = firstPlane?.energy?.bandpassName;
+  //const bandpass = firstPlane?.energy?.bandpassName;
   const target = observation.target;
-
+  const _C_ = 2998792458; // speed of light in m/s
   return {
     projectName: observation.collection,
     runName: observation.id,
@@ -72,9 +73,13 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
     band: bandpass,
     frequency:
       lower !== undefined && upper !== undefined
-        ? `${(Math.round(lower*0.0000001)/100)}-${(Math.round(upper*0.0000001)/100)}` // convert MHz to GHz for display
+        ? `${(Math.round(_C_/lower*0.0000000001)/100)}-${(Math.round(_C_/upper*0.0000000001)/100)}` // convert MHz to GHz for display
         : "unknown",
-    freqUnit: "GHz",
+    wavelength:
+      lower !== undefined && upper !== undefined
+        ? `${(Math.round(lower*0.001)/100)}-${(Math.round(upper*0.001)/100)}` 
+        : "unknown",    
+    freqUnit: "lHz",
     polarisation: states,
     numberOfSources: observation.metaReadGroups?.length ?? 0,
     targets: observation.telescope.keywords ?? [],
@@ -93,9 +98,41 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
 
 export async function loader({ request }: { request: Request }) {
     const API_PORT = 8080; // <-- update this if the port changes
-    const apiUrl = `http://localhost:${API_PORT}/archive/observations`;
 
-    const res = await fetch(apiUrl, {
+    const requestUrl = new URL(request.url);
+    //const incomingApiUrl = requestUrl.searchParams.get("apiUrl");
+    const incoming = requestUrl.searchParams;
+    
+    const apiUrl = new URL(`http://localhost:${API_PORT}/archive/search`);
+
+    const allowedParams = [
+      "ra", 
+      "dec", 
+      "radius",
+      "startDate",
+      "dateMin",
+      "dateMax",  
+      "target",
+      "project",
+      "telescope",
+      "instrument",
+      "band",
+      "freqMin",
+      "freqMax",
+      "page",
+      "size"
+    
+    ]; // define allowed query parameters for security
+
+    for (const key of allowedParams) {
+      const value = incoming.get(key);
+      if(value !== null && value !== "") //maybe indefined instead of ""?
+      {
+        apiUrl.searchParams.set(key, value);
+      }
+    }
+
+    const res = await fetch(apiUrl.toString(), {
         method: "GET",
         signal: request.signal, // lest RR cancel if the user navigates away    
         headers: {
@@ -104,7 +141,7 @@ export async function loader({ request }: { request: Request }) {
     });
 
     if (!res.ok) {
-        throw new Error(`Failed to fetch observations: ${res.status} ${res.statusText}`);
+        throw new Response("Failed to fetch observations:", {status: res.status, statusText: res.statusText});
     }
     
     const json = (await res.json()) as ObservationsResponse;
@@ -118,12 +155,20 @@ export async function loader({ request }: { request: Request }) {
 }
 
 export default function Observations() {
+  const navigate = useNavigate();
   const observations = (useLoaderData() as Observation[] | undefined) ?? [];
-    const tiles = observations.map(mapObservationToDataTile);
+  const tiles = observations.map(mapObservationToDataTile);
+
+  function launchTestFilter(url: string) {
+    navigate(url);
+  }
 
     return (
         <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">Observations (mapped to DataTileDataType)</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <FilterHandler />
+          </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <p>RUNNING MAP</p>
         {tiles.map((tile) => (
@@ -134,10 +179,10 @@ export default function Observations() {
           <p>band: {tile.band}</p>
           <p>frequency: {tile.frequency}</p>
           <p>freqUnit: {tile.freqUnit}</p>
-          <p>polarisation: {tile.polarisation?.join(", ")}</p>
+          <p>polarisation: {(tile.polarisation ?? []).join(", ")}</p>
           <p>numberOfSources: {tile.numberOfSources}</p>
-          <p>targets: {tile.targets?.join(", ")}</p>    
-          <p>sourceData: {tile.sourceData?.map((source) => `${source.name} (RA: ${source.ra}, Dec: ${source.dec})`).join("; ")}</p>
+          <p>targets: {(tile.targets ?? []).join(", ")}</p>
+          <p>sourceData: {(tile.sourceData ?? []).map((source) => `${source.name} (RA: ${source.ra}, Dec: ${source.dec})`).join("; ")}</p>
           <p>startDate: {tile.startDate?.toISOString()}</p>
           <p>endDate: {tile.endDate?.toISOString()}</p>
           </div >

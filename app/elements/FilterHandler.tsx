@@ -8,10 +8,11 @@ const FEATURE_TO_PARAM: Record<string, string> = {
   RA: "ra",
   Dec: "dec",
   Band: "band",
-  Freq: "freqMin",
+  Frequency: "freqMin",
   Date: "dateMin",
   Project: "project",
   TargetName: "target",
+  Radius: "radius",
   //may need to add date and freq max if we want to support ranged filters in the future
 };
 
@@ -19,10 +20,11 @@ const PARAM_TO_LABEL: Record<string, string> = {
   ra: "RA",
   dec: "Dec",
   band: "Band",
-  freqMin: "Freq",
+  freqMin: "Frequency",
   dateMin: "Date",
   project: "Project",
   target: "TargetName",
+  radius: "Radius",
   //may need to add date and freq max if we want to support ranged filters in the future
 };
 
@@ -49,18 +51,30 @@ export default function FilterHandler() {
     const params = new URLSearchParams(location.search);
     const badges: FilterFeatureBadgeType[] = [];
 
+    
+
+    //loop through the URL search parameters and create a badge for each active filter, using the PARAM_TO_LABEL mapping to get the display label for each filter type. It also formats the display value for frequency and date filters to show the range if both min and max values are present.
     Object.entries(PARAM_TO_LABEL).forEach(([paramKey, label]) => {
       const value = params.get(paramKey);
       if (!value) {
         return;
       }
 
+      //TODO: if the value includes a paramKey, overwrite the current paramKey -- possibly use : as a separator for the value to allow for multiple values for the same feature, e.g. ra:10:20 to specify a range of RA values, or ra:10,20 to specify multiple RA values. This would require updating the addFilter function to handle adding multiple values for the same feature, and updating the display of the badges to show all values for a feature.
+
+
       let displayValue = value;
+
       if (paramKey === "freqMin" && params.get("freqMax")) {
-        displayValue = `${value} - ${params.get("freqMax")}`;
+        displayValue = `${Number.parseInt(value)/1e9} - ${Number.parseInt(params.get("freqMax")!)/1e9} GHz`;
+      } else if (paramKey === "freqMin") {
+        displayValue = `${Number.parseInt(value)/1e9} GHz - ∞`;
       }
       if (paramKey === "dateMin" && params.get("dateMax")) {
         displayValue = `${DateTime.fromISO(value).toFormat("dd/MM/yyyy")} - ${DateTime.fromISO(params.get("dateMax")!).toFormat("dd/MM/yyyy")}`;
+      }
+        else if (paramKey === "dateMin") {
+        displayValue = `${DateTime.fromISO(value).toFormat("dd/MM/yyyy")} - ∞`;
       }
 
       badges.push({
@@ -105,11 +119,14 @@ export default function FilterHandler() {
     if (unitLower === "hz") {
       return value;
     }
+     if (unitLower === "khz") {
+      return (parseFloat(value) * 1000).toString();
+    }
     if (unitLower === "mhz") {
-      return (parseInt(value) * 1000000).toString();
+      return (parseFloat(value) * 1000000).toString();
     }
     if (unitLower === "ghz") {
-      return (parseInt(value) * 1000000000).toString();
+      return (parseFloat(value) * 1000000000).toString();
     }
     return "-1";
   }
@@ -123,6 +140,7 @@ export default function FilterHandler() {
     const filterValue = String(formData.get("filter-value") ?? "").trim();
 
     if (selectedFeature === "" || filterValue === "") {
+      //TODO: see if we can find the filter value for the selected feature in the URL search params, if not alert the user to provide both the type and value for each filter
       alert("you must provide both the type and value for each filter");
       return;
     }
@@ -133,7 +151,6 @@ export default function FilterHandler() {
     }
 
     const nextParams = new URLSearchParams(location.search);
-    console.log("param key - " + paramKey);
 
     if (RANGED_FILTERS.has(paramKey)) {
       const { min, max } = parseRange(filterValue);
@@ -147,35 +164,80 @@ export default function FilterHandler() {
           alert("Invalid date format. Please use dd/mm/yyyy or dd-mm-yyyy.");
           return;
         }
+        //check if we have a current value, if we do handle the new value accordingly; if lower than the current min value, set the new value as the min value and keep the current max value, if higher than the current min value, set the new value as the max value and keep the current min value, if we don't have a current value, set the new value as the min value and leave the max value empty for now
+        const currentValue = nextParams.get(paramKey);
 
-        nextParams.set(paramKey, minD);
+        if (currentValue) {
+          const currentMin = DateTime.fromISO(currentValue);
+          const newMin = DateTime.fromISO(minD);
+          const currentMax = nextParams.get("dateMax") ? DateTime.fromISO(nextParams.get("dateMax")!) : null;
+          
+          if (newMin > currentMin) {
+            //set if new value is higher than current min value, set new max value and keep current min value if it exists, if new max value is lower than current min value, set new max value and remove current min value
+            //set current max value and keep min value
+            nextParams.set("dateMax", minD);
+            console.log("resetting max date");
+            
+          } else {      
+            //set if new min value is lower than current min value, set new min value and keep current max value if it exists, if new min value is higher than current max value, set new min value and remove current max value      
+            //update current min value
+            nextParams.set(paramKey, minD);
+            console.log("resetting min date");
+          }
+          //we could do even more clever handling updating the intermediate values if the new value is between the current min and max values, but this should be something we can add in the future if we want to support more complex date filtering
+        } else {
+          //set if no current value, set the new value as the min value and leave the max value empty for now
+          nextParams.set(paramKey, minD);
+          console.log("prime set min date");
+        }
       }
       else
       {
         nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
+
+        //replicate the same logic as above for frequency filters, but with the added complexity of converting the frequency value to Hz for the API, and converting it back to GHz for display in the badge. We also need to handle the case where the user inputs a frequency range in GHz, e.g. "1-2 GHz", which would require us to convert both values to Hz and set them as the min and max values in the URL search params.
+        const currentValue = nextParams.get(paramKey);
+        if (currentValue) {
+          const currentMin = parseFloat(currentValue);
+          const newMin = parseFloat(convertFrequencyToHz(min, "GHz"));
+          const currentMax = nextParams.get("freqMax") ? parseFloat(nextParams.get("freqMax")!) : null;
+        
+          if (newMin > currentMin) {
+            nextParams.set("freqMax", convertFrequencyToHz(min, "GHz"));
+            console.log("resetting max frequency");
+          }
+          else {
+            nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
+          }
+
+        console.log("prime set min frequency");
+        }
       }
 
       const maxKey = paramKey === "freqMin" ? "freqMax" : "dateMax";
       if(maxKey === "dateMax")
       {
-        if(max === null) {
-          //const maxD = convertToISODate(min, 1); //if max date is invalid, set it to the end of the min date
-          const maxD = DateTime.now().toUTC().toISO();
-          if(maxD !== null) {
-          nextParams.set(maxKey, maxD);
+        if(max !== null) {
+          const maxD = max ? convertToISODate(max, 1) : null;
+            if(maxD !== null) {
+            nextParams.set(maxKey, maxD);
+            console.log("secondary set max date hit");
+            }
           }
           else
           {
-            nextParams.delete(maxKey);
+          //   nextParams.delete(maxKey);
+          console.log("delete max date hit");
           }
-        }
       }
       else
       {
-        if (max) {
+        if (max !== null) {
           nextParams.set(maxKey, convertFrequencyToHz(max, "GHz"));
+          console.log("secondary set max frequency");
         } else {
           nextParams.delete(maxKey);
+          console.log("delete max frequency");
         }
       }
     } else {
@@ -217,13 +279,16 @@ export default function FilterHandler() {
               defaultValue=""
             >
               <option value="">Feature...</option>
-              <option value="RA">RA [h m s]</option>
-              <option value="Dec">Dec [deg m s]</option>
-              <option value="Band">Band</option>
-              <option value="Freq">Frequency [GHz]</option>
               <option value="Date">Date [dd/mm/yyyy]</option>
               <option value="Project">Project Name</option>
-              <option value="TargetName">Target Name</option>
+              <option value="TargetName">Target</option>
+              <option value="RA">RA [h m s]</option>
+              <option value="Dec">Dec [deg m s]</option>
+              <option value="Radius">Search Radius</option>
+              <option value="Band">Band</option>
+              <option value="Frequency">Frequency [GHz]</option>
+              
+              
             </select>
             <input
               type="text"
