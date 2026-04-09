@@ -79,10 +79,10 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
       lower !== undefined && upper !== undefined
         ? `${(Math.round(lower*0.001)/100)}-${(Math.round(upper*0.001)/100)}` 
         : "unknown",    
-    freqUnit: "lHz",
+    freqUnit: "GHz",
     polarisation: states,
     numberOfSources: observation.metaReadGroups?.length ?? 0,
-    targets: observation.telescope.keywords ?? [],
+    targets: observation.target.keywords ?? [],
     sourceData: [
       {
         name: target.name,

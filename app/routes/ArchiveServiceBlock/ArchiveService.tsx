@@ -162,6 +162,7 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
     plaformName: observation.telescope.name,
     urlToSource: observation.uri + "//weblog/index.html",
     band: bandpass,
+    antennas: observation.telescope.keywords ?? [],
     frequency:
       lower !== undefined && upper !== undefined
         ? `${Math.round((_C_/lower*0.0000000001)*100)/100}-${Math.round((_C_/upper*0.0000000001)*100)/100}` // convert MHz to GHz for display
@@ -172,7 +173,7 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
         : "unknown",  
     freqUnit: "GHz",
     polarisation: states,
-    targets: observation.telescope.keywords ?? [],
+    targets: observation.target.keywords ?? [], // placeholder until we have a real value from the API
     sourceData: [
       {
         name: target.name,
@@ -212,7 +213,7 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
                 </div>
                 <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[60vh]">
                     <h1 className="text-3xl font-bold text-center">Data Products ({dataFromServer.length})</h1>
-                    <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-9 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
+                    <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-8 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
                        { 
                         dataTileData.map((dataTileData: DataTileDataType, index: number) =>
                         <DataTile key={index} {...dataTileData} />

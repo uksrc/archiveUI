@@ -37,6 +37,16 @@ function HideElement(id: string) {
             }
         });
     }
+
+    const hiddenElements = document.getElementsByClassName("v_"+id);
+    if (hiddenElements) {
+        Array.from(hiddenElements).forEach((hiddenElements) => {
+            if((hiddenElements as HTMLElement).style.opacity === "0"){
+            (hiddenElements as HTMLElement).style.opacity = "1";
+            (hiddenElements as HTMLElement).style.display = "inline-block";
+            }
+        });
+    }
 }
 
 function ShowElement(id: string) {
@@ -49,19 +59,40 @@ function ShowElement(id: string) {
             }
         });
     }
+    const hiddenElements = document.getElementsByClassName("v_"+id);
+    if (hiddenElements) {
+        Array.from(hiddenElements).forEach((hiddenElements) => {
+            if((hiddenElements as HTMLElement).style.opacity === "1" || (hiddenElements as HTMLElement).style.opacity === "") {
+                (hiddenElements as HTMLElement).style.opacity = "0"; 
+                (hiddenElements as HTMLElement).style.display = "none"; 
+            }
+        });
+    }
 }
 
 function RenderTargets(dataProduct: DataTileDataType) {
-    let count = -1;
     return (
-            <p className={"pl-1 text-gray-800 hidden v_" + GenerateId(dataProduct)}>{
-                    dataProduct.targets?.map((target, index) => (
-                        <span key={index} className="text-gray-800 text-xs">
-                            {target}{index < count - 1 ? ' ' : ' + '} 
+        <div className={"p-0 text-gray-800 text-center opacity-0 group-hover:opacity-100 v_" + GenerateId(dataProduct)}>
+            <h1 className="text-m p-0 font-bold text-center text-gray-800">{" " + dataProduct.projectName}</h1>
+            <p className={"pl-1 text-gray-800 v_" + GenerateId(dataProduct)}>{
+                    dataProduct.antennas?.map((target, index) => (
+                        <span key={index} className="text-gray-800 text-xs text-center">
+                            {target + ' '} 
                         </span>
                     ))  
                 }
             </p>
+            <p className={"pl-1 text-gray-800 v_" + GenerateId(dataProduct)}>{
+                    dataProduct.targets?.map((target, index) => (
+                        <span key={index} className="text-gray-800 text-xs font-bold text-center">
+                            {target + ' '}<br/> 
+                        </span>
+                    ))  
+                }
+            </p>
+            
+            
+        </div>
     );
 }
 
@@ -103,20 +134,25 @@ export default function DataTile(dataProduct: DataTileDataType ){
     //define the tile one item at a time!
     return (
         <>
-        <div  onMouseOver={() => HideElement(GenerateId(dataProduct))} onMouseOut={() => ShowElement(GenerateId(dataProduct))} className="cursor-pointer h-[140px] w-[150px]">
+        <div className="group cursor-pointer w-[160px] h-[170px] hover:z-10 hover:h-[200px] transition-[height] duration-300 ease-out">
             <a  href={dataProduct.urlToSource} target="_blank" rel="noopener noreferrer" className="w-[100%]">
-                <div className="gb_card flex flex-col items-center gap-1 bg-linear-to-bl from-white from-25% via-gray-200 via-40% to-gray-400 to-95% text-gray-200 p-1 rounded-md shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out">
-                    <h1 className="text-m p-0 font-bold text-center text-gray-800">{dataProduct.projectName}</h1>
-                    <p className={"text-xs p-0 text-gray-800 " + GenerateId(dataProduct)}>{ProcessSourceData(dataProduct.sourceData)}</p>
-                    <p className="p-0 font-semibold bg-black w-[100%] text-center">{ProcessDate({date: dataProduct.startDate, separator: "\/"})}</p>
-                    <p className={GenerateId(dataProduct)}>
-                        {/* <span className="text-gray-800 font-bold">{dataProduct.band}</span> */}
-                        {FormatBand(dataProduct.band?.[0], GenerateId(dataProduct))}
-                        <span className="p-0 text-sm text-gray-800">{ ' (' + dataProduct.frequency + ' ' + dataProduct.freqUnit +')  '}</span>
-                    </p>
-                    <p className={"p-0 text-gray-800 " + GenerateId(dataProduct)}>
-                        <span className="text-gray-800 text-xs font-bold ">  [sources: {dataProduct.numberOfSources}]</span>
-                    </p>
+                <div className="gb_card flex flex-col items-center gap-1 bg-linear-to-bl from-white from-25% via-gray-200 via-40% to-gray-400 to-95% text-gray-200 p-1 rounded-md shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out group hover:overflow-y-auto scrollbar-thin">
+                    <div className="group-hover:hidden flex flex-col items-center gap-1 h-[100%] w-[100%]">
+                        <h1 className="text-m p-0 font-bold text-center text-gray-800">{" " + dataProduct.projectName}</h1>
+                        <p className={"text-xs p-0 text-gray-800" + " " + GenerateId(dataProduct)}>{ProcessSourceData(dataProduct.sourceData)}</p>
+                        <p className="p-0 font-semibold bg-black w-[100%] text-center">{ProcessDate({date: dataProduct.startDate, separator: "\/"})}</p>
+                        {/*<p className={"p-0 text-gray-800 " + GenerateId(dataProduct)}>
+                            <span className="text-gray-800 text-xs font-bold ">  [{dataProduct.antennas}]</span>
+                        </p>*/}
+                        <p className={GenerateId(dataProduct)}>
+                            {/* <span className="text-gray-800 font-bold">{dataProduct.band}</span> */}
+                            {FormatBand(dataProduct.band?.[0], GenerateId(dataProduct))}
+                            <span className="p-0 text-sm text-gray-800">{ ' (' + dataProduct.frequency + ' ' + dataProduct.freqUnit +')  '}</span>
+                        </p>
+                        <p className={"p-0 text-gray-800 " + GenerateId(dataProduct)}>
+                            <span className="text-gray-800 text-xs font-bold ">  [sources: {dataProduct.numberOfSources}]</span>
+                        </p>
+                    </div>
                     { RenderTargets(dataProduct) }
                     
                 </div>

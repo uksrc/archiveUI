@@ -8,7 +8,7 @@ import {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
+    { title: "e-Merlin Archive Service" },
     { name: "description", content: "Welcome to React Router!" },
   ];
 }

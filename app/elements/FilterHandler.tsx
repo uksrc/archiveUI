@@ -224,11 +224,6 @@ export default function FilterHandler() {
             console.log("secondary set max date hit");
             }
           }
-          else
-          {
-          //   nextParams.delete(maxKey);
-          console.log("delete max date hit");
-          }
       }
       else
       {
