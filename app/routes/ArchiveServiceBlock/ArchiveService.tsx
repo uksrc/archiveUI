@@ -206,14 +206,15 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
       
       <main className="flex items-center justify-center pt-6 pb-4 min-h-[100vh] bg-gray-600 mx-auto">
         
-            <div className="flex flex-col items-center justify-center min-w-[99vw] h-[94vh] space-y-6 px-6 bg-linear-to-l from-cyan-500 to-blue-500 p-[10px] rounded-md">
+            {/*<div className="flex flex-col items-center justify-center min-w-[99vw] h-[94vh] space-y-6 px-6 bg-linear-to-l from-cyan-500 to-blue-500 p-[10px] rounded-md">*/}
+            <div className="flex flex-col items-center justify-center min-w-[99vw] h-[94vh] space-y-6 px-6 p-[10px] rounded-md bg-[url('/images/UKSRC-DA-background3.png')] bg-cover bg-center bg-no-repeat">
               <h1 className="text-5xl font-bold text-center text-gray-200">e-Merlin Data Archive</h1>
                 <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[20vh] min-h-[250px]">
                     <FilterHandler />
                 </div>
                 <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[55vh]">
                     <h1 className="text-3xl font-bold text-center">Data Products ({dataFromServer.length})</h1>
-                    <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-8 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
+                    <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
                        { 
                         dataTileData.map((dataTileData: DataTileDataType, index: number) =>
                         <DataTile key={index} {...dataTileData} />
