@@ -9,7 +9,7 @@ import {
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "e-Merlin Archive Service" },
-    { name: "description", content: "Welcome to React Router!" },
+    { name: "description", content: "e-Merlin Archive Service" },
   ];
 }
 

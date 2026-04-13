@@ -211,7 +211,7 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
                 <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[20vh] min-h-[250px]">
                     <FilterHandler />
                 </div>
-                <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[60vh]">
+                <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[55vh]">
                     <h1 className="text-3xl font-bold text-center">Data Products ({dataFromServer.length})</h1>
                     <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-8 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
                        { 

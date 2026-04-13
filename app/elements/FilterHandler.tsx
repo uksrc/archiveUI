@@ -11,7 +11,7 @@ const FEATURE_TO_PARAM: Record<string, string> = {
   Frequency: "freqMin",
   Date: "dateMin",
   Project: "project",
-  TargetName: "target",
+  Target: "target",
   Radius: "radius",
   //may need to add date and freq max if we want to support ranged filters in the future
 };
@@ -23,7 +23,7 @@ const PARAM_TO_LABEL: Record<string, string> = {
   freqMin: "Frequency",
   dateMin: "Date",
   project: "Project",
-  target: "TargetName",
+  target: "Target",
   radius: "Radius",
   //may need to add date and freq max if we want to support ranged filters in the future
 };
@@ -276,7 +276,7 @@ export default function FilterHandler() {
               <option value="">Feature...</option>
               <option value="Date">Date [dd/mm/yyyy]</option>
               <option value="Project">Project Name</option>
-              <option value="TargetName">Target</option>
+              <option value="Target">Target</option>
               <option value="RA">RA [h m s]</option>
               <option value="Dec">Dec [deg m s]</option>
               <option value="Radius">Search Radius</option>

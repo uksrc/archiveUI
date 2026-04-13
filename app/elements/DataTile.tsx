@@ -134,7 +134,7 @@ export default function DataTile(dataProduct: DataTileDataType ){
     //define the tile one item at a time!
     return (
         <>
-        <div className="group cursor-pointer w-[160px] h-[170px] hover:z-10 hover:h-[200px] transition-[height] duration-300 ease-out">
+        <div className="group cursor-pointer w-[160px] h-[170px] hover:z-10 hover:h-[170px] transition-[height] duration-300 ease-out">
             <a  href={dataProduct.urlToSource} target="_blank" rel="noopener noreferrer" className="w-[100%]">
                 <div className="gb_card flex flex-col items-center gap-1 bg-linear-to-bl from-white from-25% via-gray-200 via-40% to-gray-400 to-95% text-gray-200 p-1 rounded-md shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out group hover:overflow-y-auto scrollbar-thin">
                     <div className="group-hover:hidden flex flex-col items-center gap-1 h-[100%] w-[100%]">
