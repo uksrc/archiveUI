@@ -116,7 +116,31 @@ export async function loader({ request }: { request: Request }) {
     
     ]; // define allowed query parameters for security
 
+            // --- NEW: gate RA/Dec/Radius as a group ---
+    const ra = incoming.get("ra");
+    const dec = incoming.get("dec");
+    const radius = incoming.get("radius");
+
+    const hasAllCoords =
+      ra !== null && ra !== "" &&
+      dec !== null && dec !== "" &&
+      radius !== null && radius !== "";
+
+    if (hasAllCoords) {
+      console.log("Adding RA/Dec/Radius to API request:", { ra, dec, radius });
+
+      apiUrl.searchParams.set("ra", ra);
+      apiUrl.searchParams.set("dec", dec);
+      apiUrl.searchParams.set("radius", radius);
+    }
+    else
+    {
+      console.log("Skipping RA/Dec/Radius due to missing values:", { ra, dec, radius });
+    }
+
     for (const key of allowedParams) {
+      if (key === "ra" || key === "dec" || key === "radius") continue; // skip since handled as a group above
+      
       const value = incoming.get(key);
       if(value !== null && value !== "") //maybe indefined instead of ""?
       {

@@ -2,7 +2,7 @@ import { useMemo, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { DateTime } from "luxon";
 import type { FilterFeatureBadgeType } from "../objects/Objects";
-
+import { AstroLib } from "@tsastro/astrolib";
 
 const FEATURE_TO_PARAM: Record<string, string> = {
   RA: "ra",
@@ -51,7 +51,7 @@ export default function FilterHandler() {
     const params = new URLSearchParams(location.search);
     const badges: FilterFeatureBadgeType[] = [];
 
-    
+ 
 
     //loop through the URL search parameters and create a badge for each active filter, using the PARAM_TO_LABEL mapping to get the display label for each filter type. It also formats the display value for frequency and date filters to show the range if both min and max values are present.
     Object.entries(PARAM_TO_LABEL).forEach(([paramKey, label]) => {
@@ -59,6 +59,8 @@ export default function FilterHandler() {
       if (!value) {
         return;
       }
+
+      
 
       //TODO: if the value includes a paramKey, overwrite the current paramKey -- possibly use : as a separator for the value to allow for multiple values for the same feature, e.g. ra:10:20 to specify a range of RA values, or ra:10,20 to specify multiple RA values. This would require updating the addFilter function to handle adding multiple values for the same feature, and updating the display of the badges to show all values for a feature.
 
@@ -76,6 +78,7 @@ export default function FilterHandler() {
         else if (paramKey === "dateMin") {
         displayValue = `${DateTime.fromISO(value).toFormat("dd/MM/yyyy")} - ∞`;
       }
+      
 
       badges.push({
         label,
@@ -152,11 +155,44 @@ export default function FilterHandler() {
 
     const nextParams = new URLSearchParams(location.search);
 
+
+    if(paramKey === "ra") {
+      console.log("attempt RA to deg");
+      console.log(filterValue);
+      console.log(AstroLib.HmsToDeg(filterValue ?? ""));
+      const updateRA = AstroLib.HmsToDeg(filterValue ?? "").toString();
+      if(updateRA !== "NaN") {
+        nextParams.set(paramKey, updateRA);
+      }
+    }
+    
+    if(paramKey === "dec") {
+      console.log("attempt Dec to deg");
+      console.log(filterValue);
+      console.log(AstroLib.DmsToDeg(filterValue ?? ""));
+      const updateDec = AstroLib.DmsToDeg(filterValue ?? "").toString();
+      if(updateDec !== "NaN") {
+        nextParams.set(paramKey, updateDec);
+      }
+    }
+
+    //manage ra and !dec AND !ra and dec
+    if(nextParams.get("ra") && !nextParams.get("dec")) {
+      console.log("RA provided without Dec");
+      //hold the value and flag to the user that a dec is required before this search param can be applied, we should do this by adding a badge with the RA value and a message to provide a Dec value to apply the filter, and only apply the RA filter once both values are present. 
+
+    }
+    if(nextParams.get("dec") && !nextParams.get("ra")) {
+      console.log("Dec provided without RA");
+      //hold the value and flag to the user that a RA is required before this search param can be applied, we should do this by adding a badge with the Dec value and a message to provide a RA value to apply the filter, and only apply the Dec filter once both values are present.
+    }
+
+
     if (RANGED_FILTERS.has(paramKey)) {
       const { min, max } = parseRange(filterValue);
       
    
-      //formate date to ISO format for API if date filter
+      //format date to ISO format for API if date filter
       if(paramKey === "dateMin") {
         //convert date to ISO format for API, if not in correct format alert user
         const minD = convertToISODate(min, 0);
