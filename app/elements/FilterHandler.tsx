@@ -102,7 +102,6 @@ export default function FilterHandler() {
         }
       }
 
-      
       //console.log("creating badge for filter:", { paramKey, value, displayValue, isPending });
       badges.push({
         label,
@@ -445,37 +444,49 @@ function pendingPositionHandler({ details }: { details: FilterFeatureBadgeType }
 }
 //Component to display a badge for each active filter, showing the filter type and value, and allowing the user to remove the filter by clicking on the badge. It receives the filter details and the remove function as props. 
 //It checks if the filter has a query value, and if so, renders a button with the filter label and value, and an onClick handler that calls the remove function with the filter's query key when clicked.
-function FilterFeatureBadge({ details, onRemove,}: 
-  {  details: FilterFeatureBadgeType;  onRemove: (paramKey: string) => void;}) 
-{
+function FilterFeatureBadge({
+  details,
+  onRemove,
+}: {
+  details: FilterFeatureBadgeType;
+  onRemove: (paramKey: string) => void;
+}) {
   if (!details.query) {
     return null;
   }
 
-    if(details.isPending) {
-      return (
-        <button
-          type="button"
-          className="w-{100%} flex flex-none m-auto p-4 bg-gray-700 rounded-full shadow-lg cursor-pointer"
-          onClick={() => onRemove(details.query as string)}
+  const tooltipId = `filter-tooltip-${details.query}`;
+  const tooltipText =
+    "This feature is pending because it requires an RA, Dec, and Radius. Once the missing values have been provided, the filter will be applied.";
+
+  return (
+    <div className="relative group">
+      <button
+        type="button"
+        aria-describedby={details.isPending ? tooltipId : undefined}
+        className={
+          details.isPending
+            ? "w-{100%} flex flex-none m-auto p-4 bg-gray-700 rounded-full shadow-lg cursor-pointer"
+            : "w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg cursor-pointer"
+        }
+        onClick={() => onRemove(details.query as string)}
+      >
+        <span className={details.isPending ? "text-red-400" : "text-gray-100"}>
+          {details.isPending ? `! ${details.label ?? "none"}` : details.label ?? "none"}
+        </span>
+        <span className="inline-block mx-2 text-gray-400">|</span>
+        <span className="text-blue-300">{details.value ?? "none"}</span>
+      </button>
+
+      {details.isPending ? (
+        <span
+          id={tooltipId}
+          role="tooltip"
+          className="pointer-events-none absolute left-1/2 top-0 z-20 hidden w-64 -translate-x-1/2 -translate-y-full rounded-md bg-gray-900 px-3 py-2 text-sm text-white shadow-lg group-hover:block"
         >
-          <span className="text-red-400">! {details.label ?? "none"}</span>
-          <span className="inline-block mx-2 text-gray-400">|</span>
-          <span className="text-blue-300">{details.value ?? "none"}</span>
-        </button>
-      );
-    }
-    else {
-      return (
-        <button
-          type="button"
-          className="w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg cursor-pointer"
-          onClick={() => onRemove(details.query as string)}
-        >
-          <span className="text-gray-100">{details.label ?? "none"}</span>
-          <span className="inline-block mx-2 text-gray-400">|</span>
-          <span className="text-blue-300">{details.value ?? "none"}</span>
-        </button>
-      );
-  }
+          {tooltipText}
+        </span>
+      ) : null}
+    </div>
+  );
 }
