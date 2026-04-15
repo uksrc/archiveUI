@@ -30,6 +30,10 @@ const PARAM_TO_LABEL: Record<string, string> = {
 
 const RANGED_FILTERS = new Set(["freqMin", "dateMin"]);
 
+const DEFAULT_FILTER_RADIUS = "0.05"; // default search radius in degrees for RA/Dec filters when one is provided without the other, we can adjust this value as needed based on typical use cases and user feedback
+
+const SEXEGESIMAL_REGEX = /[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)/; // regex to match sexegesimal format for RA and Dec, e.g. "10h 20m 30s" for RA or "10d 20m 30s" for Dec, also allows for optional + or - sign at the beginning for Dec values, and allows for decimal seconds
+
 function parseRange(value: string): { min: string; max: string | null } {
   const cleaned = value.trim();
   if (!cleaned.includes("-")) {
@@ -51,7 +55,6 @@ export default function FilterHandler() {
     const params = new URLSearchParams(location.search);
     const badges: FilterFeatureBadgeType[] = [];
 
- 
 
     //loop through the URL search parameters and create a badge for each active filter, using the PARAM_TO_LABEL mapping to get the display label for each filter type. It also formats the display value for frequency and date filters to show the range if both min and max values are present.
     Object.entries(PARAM_TO_LABEL).forEach(([paramKey, label]) => {
@@ -60,10 +63,7 @@ export default function FilterHandler() {
         return;
       }
 
-      
-
       //TODO: if the value includes a paramKey, overwrite the current paramKey -- possibly use : as a separator for the value to allow for multiple values for the same feature, e.g. ra:10:20 to specify a range of RA values, or ra:10,20 to specify multiple RA values. This would require updating the addFilter function to handle adding multiple values for the same feature, and updating the display of the badges to show all values for a feature.
-
 
       let displayValue = value;
 
@@ -134,6 +134,8 @@ export default function FilterHandler() {
     return "-1";
   }
 
+
+
   //function to handle adding a filter, checks the selected feature and value, validates them, and updates the URL search params accordingly. Also handles ranged filters for frequency and date.
   function addFilter(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -155,26 +157,61 @@ export default function FilterHandler() {
 
     const nextParams = new URLSearchParams(location.search);
 
-
+    //handle special formatting for RA and Dec filters, converting from user-friendly formats (e.g. "10h 20m 30s" for RA or "10d 20m 30s" for Dec) to the decimal degrees format required by the API. We can use the AstroLib library to handle these conversions, which provides functions for converting between different astronomical coordinate formats.
     if(paramKey === "ra") {
-      console.log("attempt RA to deg");
-      console.log(filterValue);
-      console.log(AstroLib.HmsToDeg(filterValue ?? ""));
-      const updateRA = AstroLib.HmsToDeg(filterValue ?? "").toString();
-      if(updateRA !== "NaN") {
-        nextParams.set(paramKey, updateRA);
+      
+      let varifiedRA = filterValue;
+      
+      if(filterValue.match(SEXEGESIMAL_REGEX)) {
+        console.log("handling RA filter");
+        varifiedRA = AstroLib.HmsToDeg(filterValue ?? "").toString();
+        console.log("converted RA value:", varifiedRA);
+
+        if(varifiedRA !== "NaN") {
+          nextParams.set(paramKey, varifiedRA);
+          
+          if(nextParams.get("radius") === null) {
+            {
+              nextParams.set("radius", DEFAULT_FILTER_RADIUS);
+            }
+          }
+        }
+        else{
+          alert("RA value not in correct format. Please use h m s format, e.g. 10 20 30.04");
+        }
       }
+      else if(Number(filterValue) < 0 && Number(filterValue) > 360) {
+        alert("RA degree value out of bounds. Please enter a value between 0 and 360.");
+      }     
     }
     
-    if(paramKey === "dec") {
-      console.log("attempt Dec to deg");
-      console.log(filterValue);
-      console.log(AstroLib.DmsToDeg(filterValue ?? ""));
-      const updateDec = AstroLib.DmsToDeg(filterValue ?? "").toString();
-      if(updateDec !== "NaN") {
-        nextParams.set(paramKey, updateDec);
+
+    //handle dec filter, converting from "10d 20m 30s" format to decimal degrees, and also handle the case where the user inputs a negative declination value, e.g. "-10d 20m 30s", which should be correctly converted to a negative decimal degree value for the API
+    if(paramKey === "dec"){
+      let verifiedDec = filterValue;
+
+      if(filterValue.match(SEXEGESIMAL_REGEX)) {
+      verifiedDec = AstroLib.DmsToDeg(filterValue ?? "").toString();
+      
+        if(verifiedDec !== "NaN") {
+            nextParams.set(paramKey, verifiedDec);
+          
+          if(nextParams.get("radius") === null) {
+            {
+              nextParams.set("radius", DEFAULT_FILTER_RADIUS);
+            }
+          }
+        }
+        else{
+          alert("Dec value not in correct format. Please use d m s format, e.g. 10 20 30.04");
+        }
+      }
+    
+      else if(Number(filterValue) < -90 && Number(filterValue) > 90) {
+        alert("Dec degree value out of bounds. Please enter a value between -90 and 90.");
       }
     }
+
 
     //manage ra and !dec AND !ra and dec
     if(nextParams.get("ra") && !nextParams.get("dec")) {
@@ -290,6 +327,8 @@ export default function FilterHandler() {
     if (paramKey === "dateMin") {
       nextParams.delete("dateMax");
     }
+
+    //NOTE: we could also remove positional values if a component is deleted...
     submitFilters(nextParams);
   }
 
@@ -366,7 +405,7 @@ function FilterFeatureBadge({
   return (
     <button
       type="button"
-      className="w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg"
+      className="w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg cursor-pointer"
       onClick={() => onRemove(details.query as string)}
     >
       <span className="text-gray-100">{details.label ?? "none"}</span>

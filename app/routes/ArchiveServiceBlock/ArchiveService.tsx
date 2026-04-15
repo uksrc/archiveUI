@@ -3,6 +3,7 @@ import DataTile from "../../elements/DataTile";
 import { proxyTiles } from "~/objects/Proxy";
 import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
+import { AstroLib } from "@tsastro/astrolib"; 
 
 // basic layout of the Archive Service page
 //
@@ -116,15 +117,32 @@ export async function loader({ request }: { request: Request }) {
     
     ]; // define allowed query parameters for security
 
+    console.log("Incoming query parameters:", Object.fromEntries(incoming.entries()));
+
             // --- NEW: gate RA/Dec/Radius as a group ---
-    const ra = incoming.get("ra");
-    const dec = incoming.get("dec");
+    let ra =  String(incoming.get("ra"));
+    let dec = String(incoming.get("dec"));
     const radius = incoming.get("radius");
+    const sexegesimalRegex = /(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)/;
+    //if RA confirms to sexegesimal format, convert to decimal degrees and add to API request, otherwise skip and let the API handle it (which will likely result in no matches, but at least we won't error out). We can use the AstroLib library to handle these conversions, which provides functions for converting between different astronomical coordinate formats. We also want to handle the case where the user inputs a negative declination value, e.g. "-10d 20m 30s", which should be correctly converted to a negative decimal degree value for the API.
+    if(ra.match(sexegesimalRegex))
+    {
+      console.log("handling RA filter");
+      console.log("converted RA value:", ra); 
+      ra = AstroLib.HmsToDeg(ra).toString();
+    }
+
+    if(dec.match(sexegesimalRegex))
+    {
+      console.log("handling Dec filter");
+      console.log("converted Dec value:", dec); 
+      dec = AstroLib.DmsToDeg(dec).toString();
+    }
 
     const hasAllCoords =
-      ra !== null && ra !== "" &&
-      dec !== null && dec !== "" &&
-      radius !== null && radius !== "";
+      ra !== null && ra !== "null" && ra !== "" &&
+      dec !== null && dec !== "null" && dec !== "" &&
+      radius !== null && radius !== "null" && radius !== "";
 
     if (hasAllCoords) {
       console.log("Adding RA/Dec/Radius to API request:", { ra, dec, radius });
@@ -140,7 +158,8 @@ export async function loader({ request }: { request: Request }) {
 
     for (const key of allowedParams) {
       if (key === "ra" || key === "dec" || key === "radius") continue; // skip since handled as a group above
-      
+
+
       const value = incoming.get(key);
       if(value !== null && value !== "") //maybe indefined instead of ""?
       {
