@@ -54,7 +54,9 @@ export default function FilterHandler() {
   const filterFeature = useMemo<FilterFeatureBadgeType[]>(() => {
     const params = new URLSearchParams(location.search);
     const badges: FilterFeatureBadgeType[] = [];
+    let isPending = false; // default colour for badges, we can adjust this as needed or make it dynamic based on the filter type or value
 
+    
 
     //loop through the URL search parameters and create a badge for each active filter, using the PARAM_TO_LABEL mapping to get the display label for each filter type. It also formats the display value for frequency and date filters to show the range if both min and max values are present.
     Object.entries(PARAM_TO_LABEL).forEach(([paramKey, label]) => {
@@ -62,8 +64,19 @@ export default function FilterHandler() {
       if (!value) {
         return;
       }
+      //reset isPending to false for each filter, we will set it to true later if we determine that the filter is pending based on the presence of certain parameters or values. This ensures that the badge for each filter is displayed with the correct style based on whether it's active or pending.
+      isPending = false; 
 
+      //check params for RA, Dec and Radius to ensure all are present - if not record that fact
+      if(paramKey === "ra" || paramKey === "dec" || paramKey === "radius") {
+        if((params.get("ra") || params.get("dec") || params.get("radius")) 
+          && !(params.get("ra") && params.get("dec") && params.get("radius"))) {
+            console.log("working in key:", { paramKey, isPending });
+            isPending = true;
+        }
+      }
       //TODO: if the value includes a paramKey, overwrite the current paramKey -- possibly use : as a separator for the value to allow for multiple values for the same feature, e.g. ra:10:20 to specify a range of RA values, or ra:10,20 to specify multiple RA values. This would require updating the addFilter function to handle adding multiple values for the same feature, and updating the display of the badges to show all values for a feature.
+      //TODO: make presentation of positon consistent - either sexegesimal or decimal degrees, and convert the value to the appropriate format for display in the badge. We can use the AstroLib library to handle these conversions, which provides functions for converting between different astronomical coordinate formats.
 
       let displayValue = value;
 
@@ -78,12 +91,24 @@ export default function FilterHandler() {
         else if (paramKey === "dateMin") {
         displayValue = `${DateTime.fromISO(value).toFormat("dd/MM/yyyy")} - ∞`;
       }
-      
 
+      if(paramKey === "radius") {
+        displayValue = `${value}°`;
+      }
+
+      if(paramKey === "ra" || paramKey === "dec") {
+        if(!value.match(SEXEGESIMAL_REGEX)) {
+          displayValue = `${value}°`;
+        }
+      }
+
+      
+      //console.log("creating badge for filter:", { paramKey, value, displayValue, isPending });
       badges.push({
         label,
         query: paramKey,
         value: displayValue,
+        isPending: isPending,
       });
     });
 
@@ -389,28 +414,68 @@ export default function FilterHandler() {
   );
 }
 
-//Component to display a badge for each active filter, showing the filter type and value, and allowing the user to remove the filter by clicking on the badge. It receives the filter details and the remove function as props. 
-//It checks if the filter has a query value, and if so, renders a button with the filter label and value, and an onClick handler that calls the remove function with the filter's query key when clicked.
-function FilterFeatureBadge({
-  details,
-  onRemove,
-}: {
-  details: FilterFeatureBadgeType;
-  onRemove: (paramKey: string) => void;
-}) {
-  if (!details.query) {
-    return null;
-  }
+function pendingPositionHandler({ details }: { details: FilterFeatureBadgeType }) {
 
-  return (
-    <button
+
+
+    if (details.isPending) {
+      //return "w-{100%} flex flex-none m-auto p-4 bg-gray-700 rounded-full shadow-lg cursor-pointer"
+
+      return (
+
+            <button
       type="button"
-      className="w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg cursor-pointer"
+      className="w-{100%} flex flex-none m-auto p-4 bg-gray-700 rounded-full shadow-lg cursor-pointer"
       onClick={() => onRemove(details.query as string)}
     >
       <span className="text-gray-100">{details.label ?? "none"}</span>
       <span className="inline-block mx-2 text-gray-400">|</span>
       <span className="text-blue-300">{details.value ?? "none"}</span>
     </button>
-  );
+
+
+
+      )
+
+
+    }
+    else {
+      return "w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg cursor-pointer"
+    }
+}
+//Component to display a badge for each active filter, showing the filter type and value, and allowing the user to remove the filter by clicking on the badge. It receives the filter details and the remove function as props. 
+//It checks if the filter has a query value, and if so, renders a button with the filter label and value, and an onClick handler that calls the remove function with the filter's query key when clicked.
+function FilterFeatureBadge({ details, onRemove,}: 
+  {  details: FilterFeatureBadgeType;  onRemove: (paramKey: string) => void;}) 
+{
+  if (!details.query) {
+    return null;
+  }
+
+    if(details.isPending) {
+      return (
+        <button
+          type="button"
+          className="w-{100%} flex flex-none m-auto p-4 bg-gray-700 rounded-full shadow-lg cursor-pointer"
+          onClick={() => onRemove(details.query as string)}
+        >
+          <span className="text-red-400">! {details.label ?? "none"}</span>
+          <span className="inline-block mx-2 text-gray-400">|</span>
+          <span className="text-blue-300">{details.value ?? "none"}</span>
+        </button>
+      );
+    }
+    else {
+      return (
+        <button
+          type="button"
+          className="w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg cursor-pointer"
+          onClick={() => onRemove(details.query as string)}
+        >
+          <span className="text-gray-100">{details.label ?? "none"}</span>
+          <span className="inline-block mx-2 text-gray-400">|</span>
+          <span className="text-blue-300">{details.value ?? "none"}</span>
+        </button>
+      );
+  }
 }

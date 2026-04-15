@@ -4,6 +4,7 @@ export type FilterFeatureBadgeType = {
     label?: string;
     query?: string;
     value?: string;
+    isPending?: boolean;
 }
 
 //data tile data type
