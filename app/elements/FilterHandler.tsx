@@ -267,7 +267,7 @@ export default function FilterHandler() {
         if (currentValue) {
           const currentMin = DateTime.fromISO(currentValue);
           const newMin = DateTime.fromISO(minD);
-          const currentMax = nextParams.get("dateMax") ? DateTime.fromISO(nextParams.get("dateMax")!) : null;
+          //const currentMax = nextParams.get("dateMax") ? DateTime.fromISO(nextParams.get("dateMax")!) : null;
           
           if (newMin > currentMin) {
             //set if new value is higher than current min value, set new max value and keep current min value if it exists, if new max value is lower than current min value, set new max value and remove current min value
@@ -288,15 +288,20 @@ export default function FilterHandler() {
           console.log("prime set min date");
         }
       }
-      else
+      else if (paramKey === "freqMin")
       {
-        nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
+        console.log("Frequency min value:", min, "Unit:", "GHz");
+        //nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
 
         //replicate the same logic as above for frequency filters, but with the added complexity of converting the frequency value to Hz for the API, and converting it back to GHz for display in the badge. We also need to handle the case where the user inputs a frequency range in GHz, e.g. "1-2 GHz", which would require us to convert both values to Hz and set them as the min and max values in the URL search params.
         const currentValue = nextParams.get(paramKey);
+        
         if (currentValue) {
           const currentMin = parseFloat(currentValue);
+          console.log("current min:", currentMin);
           const newMin = parseFloat(convertFrequencyToHz(min, "GHz"));
+          console.log("converted new min frequency value in Hz:", newMin);
+
           const currentMax = nextParams.get("freqMax") ? parseFloat(nextParams.get("freqMax")!) : null;
         
           if (newMin > currentMin) {
@@ -305,11 +310,16 @@ export default function FilterHandler() {
           }
           else {
             nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
+            console.log("resetting min frequency");
           }
 
-        console.log("prime set min frequency");
+        
+        }else{
+          nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
+            console.log("setting min frequency value in Hz:", convertFrequencyToHz(min, "GHz"));
         }
       }
+      console.log("prime set block end");
 
       const maxKey = paramKey === "freqMin" ? "freqMax" : "dateMax";
       if(maxKey === "dateMax")
@@ -322,15 +332,17 @@ export default function FilterHandler() {
             }
           }
       }
-      else
+      else if (maxKey === "freqMax")
       {
+        console.log("max frequency value:", max, "Unit:", "GHz");
         if (max !== null) {
           nextParams.set(maxKey, convertFrequencyToHz(max, "GHz"));
           console.log("secondary set max frequency");
-        } else {
-          nextParams.delete(maxKey);
-          console.log("delete max frequency");
-        }
+        } 
+        //else {
+        //  nextParams.delete(maxKey);
+        //  console.log("delete max frequency");
+        //}
       }
     } else {
       nextParams.set(paramKey, filterValue);
@@ -457,7 +469,7 @@ function FilterFeatureBadge({
 
   const tooltipId = `filter-tooltip-${details.query}`;
   const tooltipText =
-    "This feature is pending because it requires an RA, Dec, and Radius. Once the missing values have been provided, the filter will be applied.";
+    "This feature is pending; it requires RA, Dec, and Radius. Once the missing values have been provided, the filter will be applied.";
 
   return (
     <div className="relative group">
