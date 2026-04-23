@@ -28,13 +28,32 @@ const PARAM_TO_LABEL: Record<string, string> = {
   //may need to add date and freq max if we want to support ranged filters in the future
 };
 
+const PARAM_TO_REGEX: Record<string, RegExp> = {
+  ra: /^(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)$/,
+  dec: /^[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)$/,
+  alt_ra_dec: /^(\d+(?:\.\d+)?)\s*°?$/, //alternative regex to match RA and Dec values in decimal degrees format, e.g. "150.25°" or "-45.5°", with optional degree symbol
+  band: /^[A-Za-z]{1,6}$/, // allow only letters for band, with a maximum length of 6 characters
+  freqMin: /^(\d+(?:\.\d+)?)\s*((-\s*\d+(?:\.\d+)?)\s*)?(GHz|MHz|kHz|Hz)?$/, // regex to match frequency values with optional unit suffix, e.g. "1 GHz", "500 MHz", "100 kHz", "1000000 Hz"
+  dateMin: /^(\d{1,2}[-\/ ]\d{1,2}[-\/ ]\d{4})$/, // regex to match date in dd/mm/yyyy, dd-mm-yyyy, OR dd mm yyyy format
+  project: /^.*$/, // allow any string
+  target: /^.*$/, // allow any string
+  radius: /^(\d+(?:\.\d+)?)\s*°?$/, // regex to match radius values with optional degree symbol, e.g. "0.1", "0.5°"
+};
+
+const PARAM_TO_FORMATWARNING: Record<string, string> = {
+  ra: "RA value not in correct format. Please use h m s format, e.g. 10 20 30.04",
+  dec: "Dec value not in correct format. Please use d m s format, e.g. 10 20 30.04",
+  freqMin: "Frequency value not in correct format. Please provide a number with optional appropriate SI unit, e.g. '1 GHz', '500 MHz', '100 kHz', or '1000000 Hz'.",
+  dateMin: "Date value not in correct format. Please use dd/mm/yyyy, dd-mm-yyyy, or dd mm yyyy format.",
+  radius: "Radius value not in correct format. Please provide a number with optional degree symbol, e.g. '0.1' or '0.5°'.",
+};
+
 const RANGED_FILTERS = new Set(["freqMin", "dateMin"]);
 
 const DEFAULT_FILTER_RADIUS = "0.05"; // default search radius in degrees for RA/Dec filters when one is provided without the other, we can adjust this value as needed based on typical use cases and user feedback
 
-const SEXEGESIMAL_REGEX = /[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)/; // regex to match sexegesimal format for RA and Dec, e.g. "10h 20m 30s" for RA or "10d 20m 30s" for Dec, also allows for optional + or - sign at the beginning for Dec values, and allows for decimal seconds
-
 function parseRange(value: string): { min: string; max: string | null } {
+  
   const cleaned = value.trim();
   if (!cleaned.includes("-")) {
     return { min: cleaned, max: null };
@@ -56,30 +75,52 @@ export default function FilterHandler() {
     const badges: FilterFeatureBadgeType[] = [];
     let isPending = false; // default colour for badges, we can adjust this as needed or make it dynamic based on the filter type or value
 
-    
-
     //loop through the URL search parameters and create a badge for each active filter, using the PARAM_TO_LABEL mapping to get the display label for each filter type. It also formats the display value for frequency and date filters to show the range if both min and max values are present.
     Object.entries(PARAM_TO_LABEL).forEach(([paramKey, label]) => {
       const value = params.get(paramKey);
       if (!value) {
         return;
       }
-      //reset isPending to false for each filter, we will set it to true later if we determine that the filter is pending based on the presence of certain parameters or values. This ensures that the badge for each filter is displayed with the correct style based on whether it's active or pending.
-      isPending = false; 
-
-      //check params for RA, Dec and Radius to ensure all are present - if not record that fact
-      if(paramKey === "ra" || paramKey === "dec" || paramKey === "radius") {
-        if((params.get("ra") || params.get("dec") || params.get("radius")) 
-          && !(params.get("ra") && params.get("dec") && params.get("radius"))) {
-            console.log("working in key:", { paramKey, isPending });
-            isPending = true;
-        }
-      }
-      //TODO: if the value includes a paramKey, overwrite the current paramKey -- possibly use : as a separator for the value to allow for multiple values for the same feature, e.g. ra:10:20 to specify a range of RA values, or ra:10,20 to specify multiple RA values. This would require updating the addFilter function to handle adding multiple values for the same feature, and updating the display of the badges to show all values for a feature.
-      //TODO: make presentation of positon consistent - either sexegesimal or decimal degrees, and convert the value to the appropriate format for display in the badge. We can use the AstroLib library to handle these conversions, which provides functions for converting between different astronomical coordinate formats.
-
       let displayValue = value;
 
+      //reset isPending to false for each filter, we will set it to true later if we determine that the filter is pending based on the presence of certain parameters or values. This ensures that the badge for each filter is displayed with the correct style based on whether it's active or pending.
+      isPending = false; 
+      
+      //RA, DEC, RADIUS
+      if(paramKey === "ra" || paramKey === "dec" || paramKey === "radius") {
+        //check params for RA, Dec and Radius to ensure all are present - if not record that fact and continue
+        if((params.get("ra") || params.get("dec") || params.get("radius")) 
+          && !(params.get("ra") && params.get("dec") && params.get("radius"))) {
+            isPending = true;
+        }
+        //add a degree symbol if it's missing
+        if(paramKey === "radius") {
+          if(!value.includes("°")) {
+            displayValue = `${value}°`;
+          }
+          else {
+            displayValue = value;
+          }
+        }
+        //add a degree symbol if degree format and it's missing
+        if(paramKey === "ra" || paramKey === "dec") {
+          
+          const regex = PARAM_TO_REGEX["alt_ra_dec"];
+          if(!regex.test(value)) {
+            //dont reformat
+          } else {
+            if(!value.includes("°")) {
+              displayValue = `${value}°`;
+            }
+            else {
+              displayValue = value;
+            }
+          }
+        }
+      }
+
+      //TODO: if the value includes a paramKey, overwrite the current paramKey -- possibly use : as a separator for the value to allow for multiple values for the same feature, e.g. ra:10:20 to specify a range of RA values, or ra:10,20 to specify multiple RA values. This would require updating the addFilter function to handle adding multiple values for the same feature, and updating the display of the badges to show all values for a feature.
+      
       if (paramKey === "freqMin" && params.get("freqMax")) {
         displayValue = `${Number.parseInt(value)/1e9} - ${Number.parseInt(params.get("freqMax")!)/1e9} GHz`;
       } else if (paramKey === "freqMin") {
@@ -92,17 +133,6 @@ export default function FilterHandler() {
         displayValue = `${DateTime.fromISO(value).toFormat("dd/MM/yyyy")} - ∞`;
       }
 
-      if(paramKey === "radius") {
-        displayValue = `${value}°`;
-      }
-
-      if(paramKey === "ra" || paramKey === "dec") {
-        if(!value.match(SEXEGESIMAL_REGEX)) {
-          displayValue = `${value}°`;
-        }
-      }
-
-      //console.log("creating badge for filter:", { paramKey, value, displayValue, isPending });
       badges.push({
         label,
         query: paramKey,
@@ -114,128 +144,126 @@ export default function FilterHandler() {
     return badges;
   }, [location.search]);
 
-  //function to update the URL search parameters and navigate to the new URL with the updated filters
-  function submitFilters(nextParams: URLSearchParams) {
-    const nextSearch = nextParams.toString();
-    navigate(`${nextSearch ? `?${nextSearch}` : ""}`);
-    //navigate(`\observations${nextSearch ? `?${nextSearch}` : ""}`);
+  function validateFilterValue(paramKey: string, value: string): boolean {
+    const regex = PARAM_TO_REGEX[paramKey];
+    if (!regex) {
+      return true; // if no regex defined for the parameter, consider it valid by default
+    }
+
+    if(regex.test(value)) {
+      //all good
+    } else if ((paramKey === "ra" || paramKey === "dec") && PARAM_TO_REGEX["alt_ra_dec"].test(value)) {
+      //special case: passes if alternative pattern matches RA and Dec in decimal degrees format
+      return true;
+    } else {
+      alert(PARAM_TO_FORMATWARNING[paramKey] || "Invalid filter value format.");
+      console.log(`"${value}" is not the correct format for ${paramKey}. Expected format: ${regex}`);
+    }
+    
+    return regex.test(value);
   }
 
-  //EOL function to convert date string in dd/mm/yyyy or dd-mm-yyyy format to ISO format for API, returns null if not in correct format
-  //also adds a modifier to the day value to allow for ranged date filters, if modifier is 1 adds 1 day to the date to set the max date to the end of the min date
-  function convertToISODate(dateStr: string, modifier = 0): string | null {
-
-    const datePattern = /[-\\/| ]/g;
-    const dateFormat = /[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}/g;
-    const cleaned = dateStr.replaceAll(datePattern, "-");
-    const valid = cleaned.match(dateFormat);
-    if (!valid) {
-      return null;
-    }
-   
-    const [day, month, year] = cleaned.split("-").map(Number);
-
-    const date = DateTime.utc(year, month, day + modifier);      
-    return date.toISO();
-
-  }
-
-
-  function convertFrequencyToHz(value: string, unit = "MHz"): string {
-    const unitLower = unit.toLowerCase();
-    if (unitLower === "hz") {
-      return value;
-    }
-     if (unitLower === "khz") {
-      return (parseFloat(value) * 1000).toString();
-    }
-    if (unitLower === "mhz") {
-      return (parseFloat(value) * 1000000).toString();
-    }
-    if (unitLower === "ghz") {
-      return (parseFloat(value) * 1000000000).toString();
-    }
-    return "-1";
-  }
-
-
-
-  //function to handle adding a filter, checks the selected feature and value, validates them, and updates the URL search params accordingly. Also handles ranged filters for frequency and date.
-  function addFilter(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function parseSubmittedFilter(event: FormEvent<HTMLFormElement>) : {paramKey: string, filterValue: string} | "" {
     const formData = new FormData(event.currentTarget);
     const selectedFeature = String(formData.get("filter-feature") ?? "");
     const filterValue = String(formData.get("filter-value") ?? "").trim();
+    ;
 
     if (selectedFeature === "" || filterValue === "") {
       //TODO: see if we can find the filter value for the selected feature in the URL search params, if not alert the user to provide both the type and value for each filter
       alert("you must provide both the type and value for each filter");
-      return;
+      return "";
     }
 
     const paramKey = FEATURE_TO_PARAM[selectedFeature];
     if (!paramKey) {
+      alert("no query parameter found for selected filter type");
+      return "";
+    }
+
+    //validate the filter value based on the selected feature, using the PARAM_TO_REGEX mapping to get the appropriate regex for each filter type. If the value does not match the expected format, alert the user and do not add the filter.
+    if (!validateFilterValue(paramKey, filterValue)) {
+      return "";
+    }
+
+    return {paramKey, filterValue};
+  }
+
+  //function to handle adding a filter, checks the selected feature and value, validates them, and updates the URL search params accordingly. Also handles ranged filters for frequency and date.
+  function addFilter(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    
+    const validatedFilter = parseSubmittedFilter(event);
+    if(validatedFilter === "") {
       return;
     }
 
     const nextParams = new URLSearchParams(location.search);
 
-    //handle special formatting for RA and Dec filters, converting from user-friendly formats (e.g. "10h 20m 30s" for RA or "10d 20m 30s" for Dec) to the decimal degrees format required by the API. We can use the AstroLib library to handle these conversions, which provides functions for converting between different astronomical coordinate formats.
-    if(paramKey === "ra") {
+    //handle ra filter, converting from "10h 20m 30s" format to decimal degrees, and also handle the case where the user inputs a negative right ascension value, e.g. "-10h 20m 30s", which should be correctly converted to a negative decimal degree value for the API
+    if(validatedFilter.paramKey === "ra") {
+      let verifiedRA = validatedFilter.filterValue;
       
-      let varifiedRA = filterValue;
+      //remove the degree symbol if it's included. 
+      verifiedRA = verifiedRA.replace("°", "");
       
-      if(filterValue.match(SEXEGESIMAL_REGEX)) {
-        console.log("handling RA filter");
-        varifiedRA = AstroLib.HmsToDeg(filterValue ?? "").toString();
-        console.log("converted RA value:", varifiedRA);
-
-        if(varifiedRA !== "NaN") {
-          nextParams.set(paramKey, varifiedRA);
+      if(validatedFilter.filterValue.match(PARAM_TO_REGEX[validatedFilter.paramKey])) {
+        if(Number(validatedFilter.filterValue) >= 0 && Number(validatedFilter.filterValue) <= 360){
+          verifiedRA = AstroLib.HmsToDeg(validatedFilter.filterValue ?? "").toString();
           
-          if(nextParams.get("radius") === null) {
-            {
+          if(verifiedRA !== "NaN") {
+            nextParams.set(validatedFilter.paramKey, verifiedRA);
+            
+            if(nextParams.get("radius") === null) {
               nextParams.set("radius", DEFAULT_FILTER_RADIUS);
             }
           }
+          else{
+            alert("RA value not in correct format. Please use h m s format, e.g. 10 20 30.04");
+            return;
+          }
         }
-        else{
+        else if (PARAM_TO_REGEX["alt_ra_dec"].test(validatedFilter.filterValue)) {
+          nextParams.set(validatedFilter.paramKey, verifiedRA);
+        } else {
           alert("RA value not in correct format. Please use h m s format, e.g. 10 20 30.04");
+          return;
         }
       }
-      else if(Number(filterValue) < 0 && Number(filterValue) > 360) {
-        alert("RA degree value out of bounds. Please enter a value between 0 and 360.");
-      }     
     }
+
     
-
     //handle dec filter, converting from "10d 20m 30s" format to decimal degrees, and also handle the case where the user inputs a negative declination value, e.g. "-10d 20m 30s", which should be correctly converted to a negative decimal degree value for the API
-    if(paramKey === "dec"){
-      let verifiedDec = filterValue;
+    if(validatedFilter.paramKey === "dec"){
+      let verifiedDec = validatedFilter.filterValue;
 
-      if(filterValue.match(SEXEGESIMAL_REGEX)) {
-      verifiedDec = AstroLib.DmsToDeg(filterValue ?? "").toString();
-      
-        if(verifiedDec !== "NaN") {
-            nextParams.set(paramKey, verifiedDec);
-          
-          if(nextParams.get("radius") === null) {
-            {
+      //remove the degree symbol if it's included. 
+      verifiedDec = verifiedDec.replace("°", "");
+
+      if(validatedFilter.filterValue.match(PARAM_TO_REGEX[validatedFilter.paramKey])) {
+        if(Number(validatedFilter.filterValue) >= -90 && Number(validatedFilter.filterValue) <= 90) {
+          verifiedDec = AstroLib.DmsToDeg(validatedFilter.filterValue ?? "").toString();
+        
+          if(verifiedDec !== "NaN") {
+              nextParams.set(validatedFilter.paramKey, verifiedDec);
+            
+            if(nextParams.get("radius") === null) {
               nextParams.set("radius", DEFAULT_FILTER_RADIUS);
             }
           }
+          else{
+            alert("Dec value not in correct format. Please use d m s format, e.g. 10 20 30.04");
+            return;
+          }
         }
-        else{
-          alert("Dec value not in correct format. Please use d m s format, e.g. 10 20 30.04");
+        else if (PARAM_TO_REGEX["alt_ra_dec"].test(validatedFilter.filterValue)) {
+          nextParams.set(validatedFilter.paramKey, verifiedDec);
+        } else {
+          alert("Dec is out of bounds. Please provide a value between -90 and 90 degrees, in d m s format, e.g. -10 20 30.04");
+          return;
         }
-      }
-    
-      else if(Number(filterValue) < -90 && Number(filterValue) > 90) {
-        alert("Dec degree value out of bounds. Please enter a value between -90 and 90.");
       }
     }
-
 
     //manage ra and !dec AND !ra and dec
     if(nextParams.get("ra") && !nextParams.get("dec")) {
@@ -248,21 +276,22 @@ export default function FilterHandler() {
       //hold the value and flag to the user that a RA is required before this search param can be applied, we should do this by adding a badge with the Dec value and a message to provide a RA value to apply the filter, and only apply the Dec filter once both values are present.
     }
 
-
-    if (RANGED_FILTERS.has(paramKey)) {
-      const { min, max } = parseRange(filterValue);
+    //handle ranged filters for frequency and date, allowing users to specify a range of values for these features. We can use a simple syntax for the filter value, e.g. "1-2 GHz" for frequency or "01/01/2020 - 31/12/2020" for date, and parse the min and max values from the input string. We also need to handle the case where the user inputs only a min value, e.g. "1 GHz" or "01/01/2020", which should be interpreted as a range with no upper bound (i.e. "1 GHz - ∞" or "01/01/2020 - ∞").
+    if (RANGED_FILTERS.has(validatedFilter.paramKey)) {
+      const { min, max } = parseRange(validatedFilter.filterValue);
       
-   
       //format date to ISO format for API if date filter
-      if(paramKey === "dateMin") {
+      if(validatedFilter.paramKey === "dateMin") {
         //convert date to ISO format for API, if not in correct format alert user
         const minD = convertToISODate(min, 0);
+        
+        //TODO - TEST IF THIS IS HIT ANY MORE
         if (minD === null) {
           alert("Invalid date format. Please use dd/mm/yyyy or dd-mm-yyyy.");
           return;
         }
         //check if we have a current value, if we do handle the new value accordingly; if lower than the current min value, set the new value as the min value and keep the current max value, if higher than the current min value, set the new value as the max value and keep the current min value, if we don't have a current value, set the new value as the min value and leave the max value empty for now
-        const currentValue = nextParams.get(paramKey);
+        const currentValue = nextParams.get(validatedFilter.paramKey);
 
         if (currentValue) {
           const currentMin = DateTime.fromISO(currentValue);
@@ -278,74 +307,64 @@ export default function FilterHandler() {
           } else {      
             //set if new min value is lower than current min value, set new min value and keep current max value if it exists, if new min value is higher than current max value, set new min value and remove current max value      
             //update current min value
-            nextParams.set(paramKey, minD);
+            nextParams.set(validatedFilter.paramKey, minD);
             console.log("resetting min date");
           }
           //we could do even more clever handling updating the intermediate values if the new value is between the current min and max values, but this should be something we can add in the future if we want to support more complex date filtering
         } else {
           //set if no current value, set the new value as the min value and leave the max value empty for now
-          nextParams.set(paramKey, minD);
+          nextParams.set(validatedFilter.paramKey, minD);
           console.log("prime set min date");
         }
       }
-      else if (paramKey === "freqMin")
+      else if (validatedFilter.paramKey === "freqMin")
       {
-        console.log("Frequency min value:", min, "Unit:", "GHz");
-        //nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
+        const componentFrequency = convertToFreqAndUnit(min);
+
+        console.log("Frequency min value:", componentFrequency.value, "Unit:", componentFrequency.unit);
+        //nextParams.set(submittedFilter.paramKey, convertFrequencyToHz(submittedFilter.filterValue, "GHz"));
 
         //replicate the same logic as above for frequency filters, but with the added complexity of converting the frequency value to Hz for the API, and converting it back to GHz for display in the badge. We also need to handle the case where the user inputs a frequency range in GHz, e.g. "1-2 GHz", which would require us to convert both values to Hz and set them as the min and max values in the URL search params.
-        const currentValue = nextParams.get(paramKey);
+        const currentValue = nextParams.get(validatedFilter.paramKey);
         
         if (currentValue) {
           const currentMin = parseFloat(currentValue);
           console.log("current min:", currentMin);
-          const newMin = parseFloat(convertFrequencyToHz(min, "GHz"));
+          const newMin = parseFloat(convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
           console.log("converted new min frequency value in Hz:", newMin);
-
-          const currentMax = nextParams.get("freqMax") ? parseFloat(nextParams.get("freqMax")!) : null;
         
           if (newMin > currentMin) {
-            nextParams.set("freqMax", convertFrequencyToHz(min, "GHz"));
-            console.log("resetting max frequency");
+            nextParams.set("freqMax", convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
           }
           else {
-            nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
-            console.log("resetting min frequency");
+            nextParams.set(validatedFilter.paramKey, convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
           }
-
-        
         }else{
-          nextParams.set(paramKey, convertFrequencyToHz(min, "GHz"));
-            console.log("setting min frequency value in Hz:", convertFrequencyToHz(min, "GHz"));
+          //set if no current value, set the new value as the min value and leave the max value empty for now
+          nextParams.set(validatedFilter.paramKey, convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
         }
+        
       }
-      console.log("prime set block end");
 
-      const maxKey = paramKey === "freqMin" ? "freqMax" : "dateMax";
+      const maxKey = validatedFilter.paramKey === "freqMin" ? "freqMax" : "dateMax";
       if(maxKey === "dateMax")
       {
         if(max !== null) {
           const maxD = max ? convertToISODate(max, 1) : null;
             if(maxD !== null) {
-            nextParams.set(maxKey, maxD);
-            console.log("secondary set max date hit");
+              nextParams.set(maxKey, maxD);
             }
           }
       }
       else if (maxKey === "freqMax")
       {
-        console.log("max frequency value:", max, "Unit:", "GHz");
         if (max !== null) {
-          nextParams.set(maxKey, convertFrequencyToHz(max, "GHz"));
-          console.log("secondary set max frequency");
+          const componentFrequency = convertToFreqAndUnit(max);
+          nextParams.set(maxKey, convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
         } 
-        //else {
-        //  nextParams.delete(maxKey);
-        //  console.log("delete max frequency");
-        //}
       }
     } else {
-      nextParams.set(paramKey, filterValue);
+      nextParams.set(validatedFilter.paramKey, validatedFilter.filterValue);
     }
 
     submitFilters(nextParams);
@@ -360,12 +379,16 @@ export default function FilterHandler() {
     if (paramKey === "freqMin") {
       nextParams.delete("freqMax");
     }
-    if (paramKey === "dateMin") {
+    else if (paramKey === "dateMin") {
       nextParams.delete("dateMax");
     }
-
-    //NOTE: we could also remove positional values if a component is deleted...
     submitFilters(nextParams);
+  }
+
+  //function to update the URL search parameters and navigate to the new URL with the updated filters
+  function submitFilters(nextParams: URLSearchParams) {
+    const nextSearch = nextParams.toString();
+    navigate(`${nextSearch ? `?${nextSearch}` : ""}`);
   }
 
   return (
@@ -387,12 +410,14 @@ export default function FilterHandler() {
               <option value="">Feature...</option>
               <option value="Date">Date [dd/mm/yyyy]</option>
               <option value="Project">Project Name</option>
-              <option value="Target">Target</option>
-              <option value="RA">RA [h m s]</option>
-              <option value="Dec">Dec [deg m s]</option>
-              <option value="Radius">Search Radius</option>
+              <option value="Target">Target Name</option>
+              <hr/>
+              <option value="RA">RA [h m s | deg]</option>
+              <option value="Dec">Dec [deg m s | deg]</option>
+              <option value="Radius">Radius [deg]</option>
+              <hr/>
+              <option value="Frequency">Frequency [GHz (default)]</option>
               <option value="Band">Band</option>
-              <option value="Frequency">Frequency [GHz]</option>
               
               
             </select>
@@ -425,35 +450,53 @@ export default function FilterHandler() {
   );
 }
 
-function pendingPositionHandler({ details }: { details: FilterFeatureBadgeType }) {
-
-
-
-    if (details.isPending) {
-      //return "w-{100%} flex flex-none m-auto p-4 bg-gray-700 rounded-full shadow-lg cursor-pointer"
-
-      return (
-
-            <button
-      type="button"
-      className="w-{100%} flex flex-none m-auto p-4 bg-gray-700 rounded-full shadow-lg cursor-pointer"
-      onClick={() => onRemove(details.query as string)}
-    >
-      <span className="text-gray-100">{details.label ?? "none"}</span>
-      <span className="inline-block mx-2 text-gray-400">|</span>
-      <span className="text-blue-300">{details.value ?? "none"}</span>
-    </button>
-
-
-
-      )
-
-
-    }
-    else {
-      return "w-{100%} flex flex-none m-auto p-4 bg-blue-800 rounded-full shadow-lg cursor-pointer"
-    }
+function convertToFreqAndUnit(freqStr: string): { value: string; unit: string } {
+  let unitMatch = freqStr.match(/GHz|MHz|kHz|Hz/i);
+  const valueMatch = freqStr.match(/(\d+(?:\.\d+)?)/);
+  if(!unitMatch)
+  {
+    unitMatch = ["GHz"]; //default to GHz if no unit provided, we can adjust this default as needed based on typical use cases and user feedback
+  }
+  return { value: valueMatch ? valueMatch[0] : "", unit: unitMatch[0] };
 }
+
+//EOL function to convert date string in dd/mm/yyyy or dd-mm-yyyy format to ISO format for API, returns null if not in correct format
+//also adds a modifier to the day value to allow for ranged date filters, if modifier is 1 adds 1 day to the date to set the max date to the end of the min date
+function convertToISODate(dateStr: string, modifier = 0): string | null {
+
+  const datePattern = /[-\\/| ]/g;
+  const dateFormat = /[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}/g;
+  const cleaned = dateStr.replaceAll(datePattern, "-");
+  const valid = cleaned.match(dateFormat);
+  if (!valid) {
+    return null;
+  }
+  
+  const [day, month, year] = cleaned.split("-").map(Number);
+
+  const date = DateTime.utc(year, month, day + modifier);      
+  return date.toISO();
+}
+
+//EOL
+function convertFrequencyToHz(value: string, unit = "MHz"): string {
+
+  const unitLower = unit.toLowerCase();
+  if (unitLower === "hz") {
+    return value;
+  }
+    if (unitLower === "khz") {
+    return (parseFloat(value) * 1000).toString();
+  }
+  if (unitLower === "mhz") {
+    return (parseFloat(value) * 1000000).toString();
+  }
+  if (unitLower === "ghz") {
+    return (parseFloat(value) * 1000000000).toString();
+  }
+  return "-1";
+}
+
 //Component to display a badge for each active filter, showing the filter type and value, and allowing the user to remove the filter by clicking on the badge. It receives the filter details and the remove function as props. 
 //It checks if the filter has a query value, and if so, renders a button with the filter label and value, and an onClick handler that calls the remove function with the filter's query key when clicked.
 function FilterFeatureBadge({
