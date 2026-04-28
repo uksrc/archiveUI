@@ -29,7 +29,7 @@ const PARAM_TO_LABEL: Record<string, string> = {
 };
 
 const PARAM_TO_REGEX: Record<string, RegExp> = {
-  ra: /^(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)$/,
+  ra: /^(\d{1,2})[ -.:](\d{1,2})[ -.:](\d{1,2}(\.\d+)[sS]*)$/,
   dec: /^[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)$/,
   alt_ra_dec: /^(\d+(?:\.\d+)?)\s*°?$/, //alternative regex to match RA and Dec values in decimal degrees format, e.g. "150.25°" or "-45.5°", with optional degree symbol
   band: /^[A-Za-z]{1,6}$/, // allow only letters for band, with a maximum length of 6 characters

@@ -59,35 +59,6 @@ type ObservationsResponse = {
   observations: Observation[];
 };
 
-// export async function loader({ request }: { request: Request }) {
-//     const API_PORT = 8080; // <-- update this if the port changes
-//     const apiUrl = `http://localhost:${API_PORT}/archive/observations`;
-
-//     const res = await fetch(apiUrl, {
-//         method: "GET",
-//         signal: request.signal, // lest RR cancel if the user navigates away    
-//         headers: {
-//             "Accept": "application/json"
-//         }
-//     });
-
-//     if (!res.ok) {
-//         throw new Error(`Failed to fetch observations: ${res.status} ${res.statusText}`);
-//     }
-    
-//     const json = (await res.json()) as ObservationsResponse;
-
-//     // Minimal runtime guard so failures are obvious:
-//     if (!json || !Array.isArray(json.observations)) {
-//         throw new Response("Unexpected API response shape", { status: 502 });
-//     }
-
-//     return json.observations;
-
-    
-
-// }
-
 
 export async function loader({ request }: { request: Request }) {
     const API_PORT = 8080; // <-- update this if the port changes
@@ -123,7 +94,7 @@ export async function loader({ request }: { request: Request }) {
     let ra =  String(incoming.get("ra"));
     let dec = String(incoming.get("dec"));
     const radius = incoming.get("radius");
-    const sexegesimalRegex = /(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)/;
+    const sexegesimalRegex = /[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)/;
     //if RA confirms to sexegesimal format, convert to decimal degrees and add to API request, otherwise skip and let the API handle it (which will likely result in no matches, but at least we won't error out). We can use the AstroLib library to handle these conversions, which provides functions for converting between different astronomical coordinate formats. We also want to handle the case where the user inputs a negative declination value, e.g. "-10d 20m 30s", which should be correctly converted to a negative decimal degree value for the API.
     if(ra.match(sexegesimalRegex))
     {
