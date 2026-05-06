@@ -6,5 +6,9 @@ export default [
         "/observations",
         "routes/observations.tsx"
     ),
+    route(
+        "/auth/callback",
+        "./routes/AuthCallback.tsx"
+    ),
 
 ] satisfies RouteConfig;
