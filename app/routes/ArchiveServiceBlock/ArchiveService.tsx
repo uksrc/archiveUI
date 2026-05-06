@@ -110,6 +110,9 @@ export async function loader({ request }: { request: Request }) {
       dec = AstroLib.DmsToDeg(dec).toString();
     }
 
+    ra = ra.replace("°", ""); // remove degree symbol if present to ensure consistent formatting for API queries
+    dec = dec.replace("°", ""); // remove degree symbol if present to ensure consistent formatting for API queries
+
     const hasAllCoords =
       ra !== null && ra !== "null" && ra !== "" &&
       dec !== null && dec !== "null" && dec !== "" &&

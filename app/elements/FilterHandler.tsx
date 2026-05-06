@@ -31,7 +31,7 @@ const PARAM_TO_LABEL: Record<string, string> = {
 const PARAM_TO_REGEX: Record<string, RegExp> = {
   ra: /^(\d{1,2})[ -.:](\d{1,2})[ -.:](\d{1,2}(\.\d+)[sS]*)$/,
   dec: /^[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)$/,
-  alt_ra_dec: /^(\d+(?:\.\d+)?)\s*°?$/, //alternative regex to match RA and Dec values in decimal degrees format, e.g. "150.25°" or "-45.5°", with optional degree symbol
+  alt_ra_dec: /^[-+]{0,1}(\d+(?:\.\d+)?)\s*°?$/, //alternative regex to match RA and Dec values in decimal degrees format, e.g. "150.25°" or "-45.5°", with optional degree symbol
   band: /^[A-Za-z]{1,6}$/, // allow only letters for band, with a maximum length of 6 characters
   freqMin: /^(\d+(?:\.\d+)?)\s*((-\s*\d+(?:\.\d+)?)\s*)?(GHz|MHz|kHz|Hz)?$/, // regex to match frequency values with optional unit suffix, e.g. "1 GHz", "500 MHz", "100 kHz", "1000000 Hz"
   dateMin: /^(\d{1,2}[-\/ ]\d{1,2}[-\/ ]\d{4})$/, // regex to match date in dd/mm/yyyy, dd-mm-yyyy, OR dd mm yyyy format
@@ -41,8 +41,8 @@ const PARAM_TO_REGEX: Record<string, RegExp> = {
 };
 
 const PARAM_TO_FORMATWARNING: Record<string, string> = {
-  ra: "RA value not in correct format. Please use h m s format, e.g. 10 20 30.04",
-  dec: "Dec value not in correct format. Please use d m s format, e.g. 10 20 30.04",
+  ra: "RA value not in correct format. Please use h m s format, e.g. 10 20 30.046",
+  dec: "Dec value not in correct format. Please use d m s format, e.g. 10 20 30.047",
   freqMin: "Frequency value not in correct format. Please provide a number with optional appropriate SI unit, e.g. '1 GHz', '500 MHz', '100 kHz', or '1000000 Hz'.",
   dateMin: "Date value not in correct format. Please use dd/mm/yyyy, dd-mm-yyyy, or dd mm yyyy format.",
   radius: "Radius value not in correct format. Please provide a number with optional degree symbol, e.g. '0.1' or '0.5°'.",
@@ -206,9 +206,15 @@ export default function FilterHandler() {
       
       //remove the degree symbol if it's included. 
       verifiedRA = verifiedRA.replace("°", "");
-      
-      if(validatedFilter.filterValue.match(PARAM_TO_REGEX[validatedFilter.paramKey])) {
-        if(Number(validatedFilter.filterValue) >= 0 && Number(validatedFilter.filterValue) <= 360){
+
+      //get segements and analyse the first for range checks
+      const raAsSegemtents = validatedFilter.filterValue.match(PARAM_TO_REGEX[validatedFilter.paramKey]);
+            
+      if(raAsSegemtents) {
+        console.log(`RA regex matched ${validatedFilter.filterValue}`);
+
+        if(Number(raAsSegemtents[1]) >= 0 && Number(raAsSegemtents[1]) < 360){
+          console.log("RA range matched");
           verifiedRA = AstroLib.HmsToDeg(validatedFilter.filterValue ?? "").toString();
           
           if(verifiedRA !== "NaN") {
@@ -219,14 +225,15 @@ export default function FilterHandler() {
             }
           }
           else{
-            alert("RA value not in correct format. Please use h m s format, e.g. 10 20 30.04");
+            alert("RA value not in correct format. Please use h m s format, e.g. 10 20 30.042");
             return;
           }
         }
         else if (PARAM_TO_REGEX["alt_ra_dec"].test(validatedFilter.filterValue)) {
           nextParams.set(validatedFilter.paramKey, verifiedRA);
-        } else {
-          alert("RA value not in correct format. Please use h m s format, e.g. 10 20 30.04");
+        } 
+        else {
+          alert("RA value not in correct format. Please use h m s format, e.g. 10 20 30.041");
           return;
         }
       }
@@ -240,10 +247,12 @@ export default function FilterHandler() {
       //remove the degree symbol if it's included. 
       verifiedDec = verifiedDec.replace("°", "");
 
-      if(validatedFilter.filterValue.match(PARAM_TO_REGEX[validatedFilter.paramKey])) {
-        if(Number(validatedFilter.filterValue) >= -90 && Number(validatedFilter.filterValue) <= 90) {
+      const decAsSegemtents = validatedFilter.filterValue.match(PARAM_TO_REGEX[validatedFilter.paramKey]);
+      
+      if(decAsSegemtents) {
+        if(Number(decAsSegemtents[1]) > -90 && Number(decAsSegemtents[1]) < 90) {
           verifiedDec = AstroLib.DmsToDeg(validatedFilter.filterValue ?? "").toString();
-        
+          
           if(verifiedDec !== "NaN") {
               nextParams.set(validatedFilter.paramKey, verifiedDec);
             
@@ -252,14 +261,14 @@ export default function FilterHandler() {
             }
           }
           else{
-            alert("Dec value not in correct format. Please use d m s format, e.g. 10 20 30.04");
+            alert("Dec value not in correct format. Please use d m s format, e.g. 10 20 30.040");
             return;
           }
         }
         else if (PARAM_TO_REGEX["alt_ra_dec"].test(validatedFilter.filterValue)) {
           nextParams.set(validatedFilter.paramKey, verifiedDec);
         } else {
-          alert("Dec is out of bounds. Please provide a value between -90 and 90 degrees, in d m s format, e.g. -10 20 30.04");
+          alert("Dec is out of bounds. Please provide a value between -90 and 90 degrees, in d m s format, e.g. -10 20 30.044");
           return;
         }
       }
