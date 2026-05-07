@@ -1,4 +1,40 @@
 import type { DataTileDataType } from "~/objects/Objects";
+import type { AuthContextProps } from "react-oidc-context";
+
+export async function apiGet(
+  auth: AuthContextProps,
+  path: string,
+  signal?: AbortSignal
+) {
+  const token = auth.user?.access_token;
+
+  if (!token) {
+    throw new Error("No access token available");
+  }
+
+  const response = await fetch(`http://localhost:8080${path}`, {
+    method: "GET",
+    signal,
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 401) {
+    throw new Error("Unauthorised: token missing, expired, or rejected");
+  }
+
+  if (response.status === 403) {
+    throw new Error("Forbidden: token valid but insufficient permissions");
+  }
+
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status}`);
+  }
+
+  return response.json();
+}
 
 export async function fetchDataTiles(apiUrl = "/api/data-tiles"): Promise<DataTileDataType[]> {
   const res = await fetch(apiUrl, { headers: { "Accept": "application/json" } });

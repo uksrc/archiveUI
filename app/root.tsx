@@ -23,7 +23,7 @@ import "./SRC_colours.css";
 // Define the OIDC configuration for authentication
 const oidcCoinfig = {
   authority: "https://ska-iam.stfc.ac.uk/",
-  client_id: "0d3f8190-a5c3-45d4-ad1a-ae7786746812",
+  client_id: "8d30b7d8-af03-4d0d-82ef-ce9cfc60964d",
   redirect_uri: "http://localhost:27981/archive-gui/auth/callback", 
   post_logout_redirect_uri: "http://localhost:27981/archive-gui/",
   response_type: "code",

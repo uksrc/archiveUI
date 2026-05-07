@@ -1,9 +1,12 @@
+import { useState, useEffect } from "react";
 import FilterHandler from "../../elements/FilterHandler";
 import DataTile from "../../elements/DataTile";
 import { proxyTiles } from "~/objects/Proxy";
 import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
-import { AstroLib } from "@tsastro/astrolib"; 
+import { AstroLib } from "@tsastro/astrolib";
+import { useAuth } from "react-oidc-context";
+import { useSearchParams } from "react-router"; 
 
 // basic layout of the Archive Service page
 //
@@ -60,110 +63,6 @@ type ObservationsResponse = {
 };
 
 
-export async function loader({ request }: { request: Request }) {
-    const API_PORT = 8080; // <-- update this if the port changes
-
-    const requestUrl = new URL(request.url);
-    //const incomingApiUrl = requestUrl.searchParams.get("apiUrl");
-    const incoming = requestUrl.searchParams;
-    
-    const apiUrl = new URL(`http://localhost:${API_PORT}/archive/search`);
-
-    const allowedParams = [
-      "ra", 
-      "dec", 
-      "radius",
-      "startDate",
-      "dateMin",
-      "dateMax",  
-      "target",
-      "project",
-      "telescope",
-      "instrument",
-      "band",
-      "freqMin",
-      "freqMax",
-      "page",
-      "size"
-    
-    ]; // define allowed query parameters for security
-
-    console.log("Incoming query parameters:", Object.fromEntries(incoming.entries()));
-
-            // --- NEW: gate RA/Dec/Radius as a group ---
-    let ra =  String(incoming.get("ra"));
-    let dec = String(incoming.get("dec"));
-    const radius = incoming.get("radius");
-    const sexegesimalRegex = /[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)/;
-    //if RA confirms to sexegesimal format, convert to decimal degrees and add to API request, otherwise skip and let the API handle it (which will likely result in no matches, but at least we won't error out). We can use the AstroLib library to handle these conversions, which provides functions for converting between different astronomical coordinate formats. We also want to handle the case where the user inputs a negative declination value, e.g. "-10d 20m 30s", which should be correctly converted to a negative decimal degree value for the API.
-    if(ra.match(sexegesimalRegex))
-    {
-      console.log("handling RA filter");
-      console.log("converted RA value:", ra); 
-      ra = AstroLib.HmsToDeg(ra).toString();
-    }
-
-    if(dec.match(sexegesimalRegex))
-    {
-      console.log("handling Dec filter");
-      console.log("converted Dec value:", dec); 
-      dec = AstroLib.DmsToDeg(dec).toString();
-    }
-
-    ra = ra.replace("°", ""); // remove degree symbol if present to ensure consistent formatting for API queries
-    dec = dec.replace("°", ""); // remove degree symbol if present to ensure consistent formatting for API queries
-
-    const hasAllCoords =
-      ra !== null && ra !== "null" && ra !== "" &&
-      dec !== null && dec !== "null" && dec !== "" &&
-      radius !== null && radius !== "null" && radius !== "";
-
-    if (hasAllCoords) {
-      console.log("Adding RA/Dec/Radius to API request:", { ra, dec, radius });
-
-      apiUrl.searchParams.set("ra", ra);
-      apiUrl.searchParams.set("dec", dec);
-      apiUrl.searchParams.set("radius", radius);
-    }
-    else
-    {
-      console.log("Skipping RA/Dec/Radius due to missing values:", { ra, dec, radius });
-    }
-
-    for (const key of allowedParams) {
-      if (key === "ra" || key === "dec" || key === "radius") continue; // skip since handled as a group above
-
-
-      const value = incoming.get(key);
-      if(value !== null && value !== "") //maybe indefined instead of ""?
-      {
-        apiUrl.searchParams.set(key, value);
-      }
-    }
-
-    const res = await fetch(apiUrl.toString(), {
-        method: "GET",
-        signal: request.signal, // lest RR cancel if the user navigates away    
-        headers: {
-            "Accept": "application/json"
-        }
-    });
-
-    if (!res.ok) {
-        throw new Response("Failed to fetch observations:", {status: res.status, statusText: res.statusText});
-    }
-    
-    const json = (await res.json()) as ObservationsResponse;
-
-    // Minimal runtime guard so failures are obvious:
-    if (!json || !Array.isArray(json.observations)) {
-        throw new Response("Unexpected API response shape", { status: 502 });
-    }
-
-    return json.observations;
-}
-
-
 function mapObservationToDataTile(observation: Observation): DataTileDataType {
   const firstPlane = observation.planes?.[0];
   const lower = firstPlane?.energy?.bounds?.lower;
@@ -211,12 +110,120 @@ type ArchiveServiceProps = {
 
 export function ArchiveService({ observations = [] }: ArchiveServiceProps) 
 {
-  //let dataTileData: DataTileDataType[] = proxyTiles() ?? [];
+  const auth = useAuth();
+  const [searchParams] = useSearchParams();
+  const [observations_local, setObservations] = useState<Observation[]>(observations ?? []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const API_PORT = 8080;
+  const allowedParams = [
+    "ra", 
+    "dec", 
+    "radius",
+    "startDate", 
+    "dateMin", 
+    "dateMax",
+    "target", 
+    "project", 
+    "telescope", 
+    "instrument",
+    "band", 
+    "freqMin", 
+    "freqMax", 
+    "page", 
+    "size"
+  ];
+  const sexegesimalRegex = /[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)/;
+
+  useEffect(() => {
+    if (!auth.isAuthenticated || auth.isLoading || !auth.user?.access_token) return;
+
+    const fetchObservations = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const apiUrl = new URL(`http://localhost:${API_PORT}/archive/search`);
+
+        // Process RA/Dec/Radius coordinates
+        let ra = String(searchParams.get("ra") || "");
+        let dec = String(searchParams.get("dec") || "");
+        const radius = searchParams.get("radius");
+
+        if (ra.match(sexegesimalRegex)) {
+          ra = AstroLib.HmsToDeg(ra).toString();
+        }
+
+        if (dec.match(sexegesimalRegex)) {
+          dec = AstroLib.DmsToDeg(dec).toString();
+        }
+
+        ra = ra.replace("°", "");
+        dec = dec.replace("°", "");
+
+        const hasAllCoords =
+          ra !== "" && dec !== "" && radius;
+
+        if (hasAllCoords) {
+          apiUrl.searchParams.set("ra", ra);
+          apiUrl.searchParams.set("dec", dec);
+          apiUrl.searchParams.set("radius", radius!);
+        }
+
+        // Add other allowed parameters
+        for (const key of allowedParams) {
+          if (["ra", "dec", "radius"].includes(key)) continue;
+          const value = searchParams.get(key);
+          if (value) {
+            apiUrl.searchParams.set(key, value);
+          }
+        }
+
+        // Fetch with Bearer token
+        const res = await fetch(apiUrl.toString(), {
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${auth.user!.access_token}`,
+          },
+        });
+
+        if (res.status === 401) {
+          throw new Error("Unauthorized: token expired or invalid");
+        }
+
+        if (!res.ok) {
+          throw new Error(`API request failed: ${res.status}`);
+        }
+
+        const json = (await res.json()) as ObservationsResponse;
+
+        if (!json || !Array.isArray(json.observations)) {
+          throw new Error("Unexpected API response shape");
+        }
+
+        setObservations(json.observations);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch observations");
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchObservations();
+  }, [auth.isAuthenticated, auth.isLoading, auth.user?.access_token, searchParams]);
+
   let dataTileData: DataTileDataType[] = [];
 
-  const dataFromServer: DataTileDataType[] = observations.map(mapObservationToDataTile); // transform to DataTileDataType[]
-  dataTileData = dataFromServer.length > 0 ? dataFromServer : dataTileData; // use server data if available, otherwise fallback to proxy data
-   //dataTileData = dataFromServer; // use server data if available, otherwise fallback to proxy data
+  if (Array.isArray(observations_local) && observations_local.length > 0) {
+    dataTileData = observations_local.map(mapObservationToDataTile);
+  }
+
+  //const dataFromServer: DataTileDataType[] = observations_local.map(mapObservationToDataTile); // transform to DataTileDataType[]
+  //dataTileData = dataFromServer.length > 0 ? dataFromServer : dataTileData; // use server data if available, otherwise fallback to proxy data
+  
 
   return (
     <div className="min-h-[100vh] bg-gray-300">
@@ -230,7 +237,9 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
                     <FilterHandler />
                 </div>
                 <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[55vh]">
-                    <h1 className="text-3xl font-bold text-center">Data Products ({dataFromServer.length})</h1>
+                    <h1 className="text-3xl font-bold text-center">Data Products ({dataTileData.length})</h1>
+                    {loading && <p>Loading observations...</p>}
+                    {error && <p className="text-red-400">Error: {error}</p>}
                     <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
                        { 
                         dataTileData.map((dataTileData: DataTileDataType, index: number) =>
