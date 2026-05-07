@@ -24,8 +24,8 @@ import "./SRC_colours.css";
 const oidcCoinfig = {
   authority: "https://ska-iam.stfc.ac.uk/",
   client_id: "8d30b7d8-af03-4d0d-82ef-ce9cfc60964d",
-  redirect_uri: "http://localhost:27981/archive-gui/auth/callback", 
-  post_logout_redirect_uri: "http://localhost:27981/archive-gui/",
+  redirect_uri: "https://kilburn.jb.man.ac.uk/archive-gui/auth/callback", 
+  post_logout_redirect_uri: "https://kilburn.jb.man.ac.uk/archive-gui/",
   response_type: "code",
   scope: "openid profile email",
   automaticSilentRenew: true,
