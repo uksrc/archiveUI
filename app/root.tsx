@@ -22,10 +22,10 @@ import "./SRC_colours.css";
 
 // Define the OIDC configuration for authentication
 const oidcCoinfig = {
-  authority: "https://ska-iam.stfc.ac.uk/",
-  client_id: "8d30b7d8-af03-4d0d-82ef-ce9cfc60964d",
-  redirect_uri: "https://kilburn.jb.man.ac.uk/archive-gui/auth/callback", 
-  post_logout_redirect_uri: "https://kilburn.jb.man.ac.uk/archive-gui/",
+  authority: `${import.meta.env.VITE_OIDC_AUTHORITY}`,
+  client_id: `${import.meta.env.VITE_OIDC_CLIENT_ID}`,
+  redirect_uri: `${import.meta.env.VITE_OIDC_REDIRECT_URI}`,
+  post_logout_redirect_uri: `${import.meta.env.VITE_OIDC_POST_LOGOUT_REDIRECT_URI}`,
   response_type: "code",
   scope: "openid profile email",
   automaticSilentRenew: true,

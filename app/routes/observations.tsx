@@ -97,13 +97,15 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
 }
 
 export async function loader({ request }: { request: Request }) {
-    const API_PORT = 8080; // <-- update this if the port changes
+    //const API_PORT = 8080; // <-- update this if the port changes
+    //const API_DOMAIN = `http://localhost:${API_PORT}`; // <-- update this if the domain changes
+    const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`;
 
     const requestUrl = new URL(request.url);
     //const incomingApiUrl = requestUrl.searchParams.get("apiUrl");
     const incoming = requestUrl.searchParams;
     
-    const apiUrl = new URL(`http://localhost:${API_PORT}/archive/search`);
+    const apiUrl = new URL(`${API_BASE_URL}/archive/search`);
 
     const allowedParams = [
       "ra", 

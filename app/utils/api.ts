@@ -12,7 +12,8 @@ export async function apiGet(
     throw new Error("No access token available");
   }
 
-  const response = await fetch(`http://localhost:8080${path}`, {
+  const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`;
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "GET",
     signal,
     headers: {

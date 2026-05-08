@@ -116,7 +116,8 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_PORT = 8080;
+  const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`;
+  
   const allowedParams = [
     "ra", 
     "dec", 
@@ -144,7 +145,7 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
         setLoading(true);
         setError(null);
 
-        const apiUrl = new URL(`http://localhost:${API_PORT}/archive/search`);
+        const apiUrl = new URL(`${API_BASE_URL}/archive/search`);
 
         // Process RA/Dec/Radius coordinates
         let ra = String(searchParams.get("ra") || "");
