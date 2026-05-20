@@ -5,8 +5,8 @@ import {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "e-Merlin Archive Service" },
-    { name: "description", content: "e-Merlin Archive Service" },
+    { title: "e-MERLIN Archive Service" },
+    { name: "description", content: "e-MERLIN Archive Service" },
   ];
 }
 

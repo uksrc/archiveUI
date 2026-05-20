@@ -233,7 +233,7 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
         
             {/*<div className="flex flex-col items-center justify-center min-w-[99vw] h-[94vh] space-y-6 px-6 bg-linear-to-l from-cyan-500 to-blue-500 p-[10px] rounded-md">*/}
             <div className="flex flex-col items-center justify-center min-w-[99vw] h-[94vh] space-y-6 px-6 p-[10px] rounded-md bg-[url('/images/UKSRC-DA-background3.png')] bg-cover bg-center bg-no-repeat">
-              <h1 className="text-5xl font-bold text-center text-gray-200">e-Merlin Data Archive</h1>
+              <h1 className="text-5xl font-bold text-center text-gray-200">e-MERLIN Data Archive</h1>
                 <div className="w-[80vw] flex flex-col items-center gap-4 gb_traslucent text-gray-200 p-4 rounded-md shadow-xl shadow-gray-500/60 h-[20vh] min-h-[250px]">
                     <FilterHandler />
                 </div>
