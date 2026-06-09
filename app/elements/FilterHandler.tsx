@@ -34,7 +34,7 @@ const PARAM_TO_REGEX: Record<string, RegExp> = {
   alt_ra_dec: /^[-+]{0,1}(\d+(?:\.\d+)?)\s*°?$/, //alternative regex to match RA and Dec values in decimal degrees format, e.g. "150.25°" or "-45.5°", with optional degree symbol
   band: /^[A-Za-z]{1,6}$/, // allow only letters for band, with a maximum length of 6 characters
   freqMin: /^(\d+(?:\.\d+)?)\s*((-\s*\d+(?:\.\d+)?)\s*)?(GHz|MHz|kHz|Hz)?$/, // regex to match frequency values with optional unit suffix, e.g. "1 GHz", "500 MHz", "100 kHz", "1000000 Hz"
-  dateMin: /^(\d{1,2}[-\/ ]\d{1,2}[-\/ ]\d{4})$/, // regex to match date in dd/mm/yyyy, dd-mm-yyyy, OR dd mm yyyy format
+  dateMin: /^(\d{1,2}[-\/ ]\d{1,2}[-\/ ]\d{4})(\s*-\s*(\d{1,2}[-\/ ]\d{1,2}[-\/ ]\d{4})$)?/, // regex to match date in dd/mm/yyyy, dd-mm-yyyy, OR dd mm yyyy format
   project: /^.*$/, // allow any string
   target: /^.*$/, // allow any string
   radius: /^(\d+(?:\.\d+)?)\s*°?$/, // regex to match radius values with optional degree symbol, e.g. "0.1", "0.5°"
@@ -63,6 +63,10 @@ function parseRange(value: string): { min: string; max: string | null } {
   const min = minRaw?.trim() ?? "";
   const max = maxRaw?.trim() ?? "";
   return { min, max: max === "" ? null : max };
+}
+
+function formatISODateAsUTC(isoDate: string): string {
+  return DateTime.fromISO(isoDate, { setZone: true }).toUTC().toFormat("dd/MM/yyyy");
 }
 
 //Component to handle the filter functionality, including adding and removing filters, and displaying the active filters as badges. It uses URL search parameters to store the active filters, and updates the URL accordingly when filters are added or removed. It also handles ranged filters for frequency and date, allowing users to specify a range of values for these features.
@@ -127,10 +131,10 @@ export default function FilterHandler() {
         displayValue = `${Number.parseInt(value)/1e9} GHz - ∞`;
       }
       if (paramKey === "dateMin" && params.get("dateMax")) {
-        displayValue = `${DateTime.fromISO(value).toFormat("dd/MM/yyyy")} - ${DateTime.fromISO(params.get("dateMax")!).toFormat("dd/MM/yyyy")}`;
+        displayValue = `${formatISODateAsUTC(value)} - ${formatISODateAsUTC(params.get("dateMax")!)}`;
       }
         else if (paramKey === "dateMin") {
-        displayValue = `${DateTime.fromISO(value).toFormat("dd/MM/yyyy")} - ∞`;
+        displayValue = `${formatISODateAsUTC(value)} - ∞`;
       }
 
       badges.push({
@@ -292,7 +296,8 @@ export default function FilterHandler() {
       //format date to ISO format for API if date filter
       if(validatedFilter.paramKey === "dateMin") {
         //convert date to ISO format for API, if not in correct format alert user
-        const minD = convertToISODate(min, 0);
+        const minD = convertToISODate(min);
+        const maxD = convertToISODate(min, true);
         
         //TODO - TEST IF THIS IS HIT ANY MORE
         if (minD === null) {
@@ -309,10 +314,15 @@ export default function FilterHandler() {
           
           if (newMin > currentMin) {
             //set if new value is higher than current min value, set new max value and keep current min value if it exists, if new max value is lower than current min value, set new max value and remove current min value
-            //set current max value and keep min value
-            nextParams.set("dateMax", minD);
-            console.log("resetting max date");
-            
+            //set current max value and keep min value, update
+            if(maxD !== null) {
+              nextParams.set("dateMax", maxD);
+              console.log("resetting max date");
+            }
+            else {
+              alert("date range end value not in correct format. Please use dd/mm/yyyy or dd-mm-yyyy.");
+              return;
+            }
           } else {      
             //set if new min value is lower than current min value, set new min value and keep current max value if it exists, if new min value is higher than current max value, set new min value and remove current max value      
             //update current min value
@@ -359,7 +369,8 @@ export default function FilterHandler() {
       if(maxKey === "dateMax")
       {
         if(max !== null) {
-          const maxD = max ? convertToISODate(max, 1) : null;
+          
+          const maxD = max ? convertToISODate(max, true) : null;
             if(maxD !== null) {
               nextParams.set(maxKey, maxD);
             }
@@ -471,7 +482,7 @@ function convertToFreqAndUnit(freqStr: string): { value: string; unit: string } 
 
 //EOL function to convert date string in dd/mm/yyyy or dd-mm-yyyy format to ISO format for API, returns null if not in correct format
 //also adds a modifier to the day value to allow for ranged date filters, if modifier is 1 adds 1 day to the date to set the max date to the end of the min date
-function convertToISODate(dateStr: string, modifier = 0): string | null {
+function convertToISODate(dateStr: string, endOfDate: boolean = false): string | null {
 
   const datePattern = /[-\\/| ]/g;
   const dateFormat = /[0-9]{1,2}-[0-9]{1,2}-[0-9]{4}/g;
@@ -483,7 +494,8 @@ function convertToISODate(dateStr: string, modifier = 0): string | null {
   
   const [day, month, year] = cleaned.split("-").map(Number);
 
-  const date = DateTime.utc(year, month, day + modifier);      
+  //if end of date modifier is true, add 23:59:59 to the date to set the max date to the end of the min date, we can adjust this logic as needed based on how we want to handle ranged date filters and the user input for them
+  const date = DateTime.utc(year, month, day, (endOfDate ? 23 : 0), (endOfDate ? 59 : 0), (endOfDate ? 59 : 0));      
   return date.toISO();
 }
 
