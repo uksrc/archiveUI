@@ -295,7 +295,7 @@ describe("FilterHandler position partial and pending behavior", () => {
 });
 
 
-describe("check range handling, date and frequency", () => {
+describe("check range handling for date", () => {
   it("date input > current dateMin adds dateMax", () => {
     renderFilterHandlerWithSearch("?dateMin=2020-01-01T00%3A00%3A00.000Z");
     submitFilter("Date", "31/12/2020"); //note UK format
@@ -359,35 +359,90 @@ describe("check range handling, date and frequency", () => {
     expect(badge).toHaveTextContent("25/05/2020 - 01/07/2020");
   });
 
+  it("removes dateMax and dateMin when date input is cleared", () => {
+    renderFilterHandlerWithSearch("?dateMin=2020-01-01T00%3A00%3A00.000Z&dateMax=2020-12-31T00%3A00%3A00.000Z");
+    //find button and click it to remove the filter, then check that the badge is removed and alert is not called
+    const badge = screen.getByRole("button", { name: /Date/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("Date");
+    fireEvent.click(badge);
+    expect(badge).not.toBeInTheDocument();
+
+  });
+});
+
+describe("check range handling for frequency", () => {
+  it("frequency input > current freqMin adds freqMax", () => {
+    renderFilterHandlerWithSearch("?freqMin=1000000000");
+    submitFilter("Frequency", "2 GHz");
+    expect(alertSpy).not.toHaveBeenCalled();
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1 - 2 GHz");
+  });
+
+  it("frequency input < current freqMin updates freqMin", () => {
+    renderFilterHandlerWithSearch("?freqMin=2000000000");
+    submitFilter("Frequency", "1 GHz");
+    expect(alertSpy).not.toHaveBeenCalled();
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1 GHz - ∞");
+  });
+
+  it("frequency input > current freqMin updates freqMax with extant range specification", () => {
+    renderFilterHandlerWithSearch("?freqMin=1000000000&freqMax=2000000000");
+    submitFilter("Frequency", "3 GHz");
+    expect(alertSpy).not.toHaveBeenCalled();
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1 - 3 GHz");
+  });
+
+  it("frequency input < current freqMin updates freqMin with extant range specification", () => {
+    renderFilterHandlerWithSearch("?freqMin=2000000000&freqMax=3000000000");
+    submitFilter("Frequency", "1 GHz");
+    expect(alertSpy).not.toHaveBeenCalled();
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1 - 3 GHz");
+  });
+
+  it("frequency range input adds range in default units (GHz)", () => {
+    renderFilterHandlerWithSearch("");
+    submitFilter("Frequency", "1 - 2");
+    expect(alertSpy).not.toHaveBeenCalled();
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1 - 2 GHz");
+  });
+
+  it("frequency range input adds range with explicit GHz units", () => {
+    renderFilterHandlerWithSearch("");
+    submitFilter("Frequency", "1.5 - 3.8 GHz");
+    expect(alertSpy).not.toHaveBeenCalled();
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1.5 - 3.8 GHz");
+  });
+
+  it("frequency range input adds range in MHz", () => {
+    renderFilterHandlerWithSearch("");
+    submitFilter("Frequency", "1MHz - 200 MHz");
+    expect(alertSpy).not.toHaveBeenCalled();
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("0.001 - 0.2 GHz");
+  });
 
 
-  //   it("accepts valid Date input", () => {
-  //   renderFilterHandlerWithSearch("");
-  //   submitFilter("Date", "01/01/2020-31/12/2021");
-  //   expect(alertSpy).not.toHaveBeenCalled();
-  //   const badge = screen.getByRole("button", { name: /Date/i });
-  //   expect(badge).toBeInTheDocument();
-  //   expect(screen.getByText("01/05/2026 - ∞")).toBeInTheDocument();
-  // });
-  
-  // it("handles date range input correctly", () => {
-  //   renderFilterHandlerWithSearch("?date=01/01/2020-31/12/2021");
-  //   const badge = screen.getByRole("button", { name: /Date/i });
-  //   expect(badge).toBeInTheDocument();
-  //   expect(badge).toHaveTextContent("01/01/2020 - 31/12/2021");
-  // });
+  it("removes freqMax and freqMin when frequency badge is clicked", () => {
+    renderFilterHandlerWithSearch("?freqMin=1000000000&freqMax=2000000000");
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1 - 2 GHz");
+    fireEvent.click(badge);
+    expect(screen.queryByRole("button", { name: /Frequency/i })).not.toBeInTheDocument();
+  });
 
-  // it("handles frequency range input correctly", () => {
-  //   renderFilterHandlerWithSearch("?frequency=1+GHz-10+GHz");
-  //   const badge = screen.getByRole("button", { name: /Frequency/i });
-  //   expect(badge).toBeInTheDocument();
-  //   expect(badge).toHaveTextContent("1 GHz - 10 GHz");
-  // });
-
-  // it("handles frequency range input correctly", () => {
-  //   renderFilterHandlerWithSearch("?frequency=1+GHz-10+GHz");
-  //   const badge = screen.getByRole("button", { name: /Frequency/i });
-  //   expect(badge).toBeInTheDocument();
-  //   expect(badge).toHaveTextContent("1 GHz - 10 GHz");
-  // });
 });

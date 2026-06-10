@@ -33,7 +33,7 @@ const PARAM_TO_REGEX: Record<string, RegExp> = {
   dec: /^[-+]{0,1}(\d{1,2})\D(\d{1,2})\D(\d{1,2}(\.\d+)[sS]*)$/,
   alt_ra_dec: /^[-+]{0,1}(\d+(?:\.\d+)?)\s*°?$/, //alternative regex to match RA and Dec values in decimal degrees format, e.g. "150.25°" or "-45.5°", with optional degree symbol
   band: /^[A-Za-z]{1,6}$/, // allow only letters for band, with a maximum length of 6 characters
-  freqMin: /^(\d+(?:\.\d+)?)\s*((-\s*\d+(?:\.\d+)?)\s*)?(GHz|MHz|kHz|Hz)?$/, // regex to match frequency values with optional unit suffix, e.g. "1 GHz", "500 MHz", "100 kHz", "1000000 Hz"
+  freqMin: /^((\d+(?:\.\d+)?)\s*)(GHz|MHz|kHz|Hz)?\s*((-\s*\d+(?:\.\d+)?)\s*)?(GHz|MHz|kHz|Hz)?$/, // regex to match frequency values with optional unit suffix, e.g. "1 GHz", "500 MHz", "100 kHz", "1000000 Hz"
   dateMin: /^(\d{1,2}[-\/ ]\d{1,2}[-\/ ]\d{4})(\s*-\s*(\d{1,2}[-\/ ]\d{1,2}[-\/ ]\d{4})$)?/, // regex to match date in dd/mm/yyyy, dd-mm-yyyy, OR dd mm yyyy format
   project: /^.*$/, // allow any string
   target: /^.*$/, // allow any string
@@ -349,18 +349,18 @@ export default function FilterHandler() {
         if (currentValue) {
           const currentMin = parseFloat(currentValue);
           console.log("current min:", currentMin);
-          const newMin = parseFloat(convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
+          const newMin = parseFloat(convertFrequencyUnit(componentFrequency.value, componentFrequency.unit));
           console.log("converted new min frequency value in Hz:", newMin);
         
           if (newMin > currentMin) {
-            nextParams.set("freqMax", convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
+            nextParams.set("freqMax", convertFrequencyUnit(componentFrequency.value, componentFrequency.unit));
           }
           else {
-            nextParams.set(validatedFilter.paramKey, convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
+            nextParams.set(validatedFilter.paramKey, convertFrequencyUnit(componentFrequency.value, componentFrequency.unit));
           }
         }else{
           //set if no current value, set the new value as the min value and leave the max value empty for now
-          nextParams.set(validatedFilter.paramKey, convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
+          nextParams.set(validatedFilter.paramKey, convertFrequencyUnit(componentFrequency.value, componentFrequency.unit));
         }
         
       }
@@ -380,7 +380,7 @@ export default function FilterHandler() {
       {
         if (max !== null) {
           const componentFrequency = convertToFreqAndUnit(max);
-          nextParams.set(maxKey, convertFrequencyToHz(componentFrequency.value, componentFrequency.unit));
+          nextParams.set(maxKey, convertFrequencyUnit(componentFrequency.value, componentFrequency.unit));
         } 
       }
     } else {
@@ -500,7 +500,7 @@ function convertToISODate(dateStr: string, endOfDate: boolean = false): string |
 }
 
 //EOL
-function convertFrequencyToHz(value: string, unit = "MHz"): string {
+function convertFrequencyUnit(value: string, unit = "MHz"): string {
 
   const unitLower = unit.toLowerCase();
   if (unitLower === "hz") {
