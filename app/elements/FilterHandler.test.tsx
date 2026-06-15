@@ -79,7 +79,7 @@ afterEach(() => {
 });
 
 // Test suite for verifying that text badges are rendered based on URLSearchParams
-describe("FilterHandler URLSearchParams text badges", () => {
+describe("FilterHandler URLSearchParams text and badges behavior", () => {
   it.each(textInputCases)("renders $name", ({ search, expectedLabel, expectedValue }) => {
     renderFilterHandlerWithSearch(search);
     // find the badge by role and accessible name, which should be in the format "Label | Value", ignoring case and whitespace around the pipe
@@ -88,6 +88,42 @@ describe("FilterHandler URLSearchParams text badges", () => {
     });
     expect(badge).toBeInTheDocument();
   });
+
+  it("removes only a non-ranged filter when its badge is clicked", () => {
+    renderFilterHandlerWithSearch("?band=C&freqMin=1000000000&freqMax=2000000000");
+
+    const bandBadge = screen.getByRole("button", { name: /Band\s*\|\s*C/i });
+    const frequencyBadge = screen.getByRole("button", { name: /Frequency\s*\|\s*1\s*-\s*2\s*GHz/i });
+
+    expect(bandBadge).toBeInTheDocument();
+    expect(frequencyBadge).toBeInTheDocument();
+
+    fireEvent.click(bandBadge);
+
+    expect(screen.queryByRole("button", { name: /Band\s*\|\s*C/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Frequency\s*\|\s*1\s*-\s*2\s*GHz/i })).toBeInTheDocument();
+  });
+
+  it("removes dateMax and dateMin when date input is cleared", () => {
+    renderFilterHandlerWithSearch("?dateMin=2020-01-01T00%3A00%3A00.000Z&dateMax=2020-12-31T00%3A00%3A00.000Z");
+    //find button and click it to remove the filter, then check that the badge is removed and alert is not called
+    const badge = screen.getByRole("button", { name: /Date/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("Date");
+    fireEvent.click(badge);
+    expect(badge).not.toBeInTheDocument();
+
+  });
+
+  it("removes freqMax and freqMin when frequency badge is clicked", () => {
+    renderFilterHandlerWithSearch("?freqMin=1000000000&freqMax=2000000000");
+    const badge = screen.getByRole("button", { name: /Frequency/i });
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("1 - 2 GHz");
+    fireEvent.click(badge);
+    expect(screen.queryByRole("button", { name: /Frequency/i })).not.toBeInTheDocument();
+  });
+
 });
 
 // Test suite for verifying that filter input validation works correctly for various filter types
@@ -358,17 +394,6 @@ describe("check range handling for date", () => {
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveTextContent("25/05/2020 - 01/07/2020");
   });
-
-  it("removes dateMax and dateMin when date input is cleared", () => {
-    renderFilterHandlerWithSearch("?dateMin=2020-01-01T00%3A00%3A00.000Z&dateMax=2020-12-31T00%3A00%3A00.000Z");
-    //find button and click it to remove the filter, then check that the badge is removed and alert is not called
-    const badge = screen.getByRole("button", { name: /Date/i });
-    expect(badge).toBeInTheDocument();
-    expect(badge).toHaveTextContent("Date");
-    fireEvent.click(badge);
-    expect(badge).not.toBeInTheDocument();
-
-  });
 });
 
 describe("check range handling for frequency", () => {
@@ -435,14 +460,24 @@ describe("check range handling for frequency", () => {
     expect(badge).toHaveTextContent("0.001 - 0.2 GHz");
   });
 
+});
 
-  it("removes freqMax and freqMin when frequency badge is clicked", () => {
-    renderFilterHandlerWithSearch("?freqMin=1000000000&freqMax=2000000000");
-    const badge = screen.getByRole("button", { name: /Frequency/i });
-    expect(badge).toBeInTheDocument();
-    expect(badge).toHaveTextContent("1 - 2 GHz");
-    fireEvent.click(badge);
-    expect(screen.queryByRole("button", { name: /Frequency/i })).not.toBeInTheDocument();
+describe("FilterHandler accessibility and non-ranged removal", () => {
+  it("renders pending tooltip wiring for accessibility", () => {
+    renderFilterHandlerWithSearch("?ra=10+20+30.123");
+
+    const pendingBadge = screen.getByRole("button", { name: /!\s*RA\s*\|/i });
+    expect(pendingBadge).toBeInTheDocument();
+    expect(pendingBadge).toHaveAttribute("aria-describedby");
+
+    const tooltipId = pendingBadge.getAttribute("aria-describedby");
+    expect(tooltipId).toBeTruthy();
+
+    const tooltip = screen.getByRole("tooltip");
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveAttribute("id", tooltipId);
+    expect(tooltip).toHaveTextContent(
+      "This feature is pending; it requires RA, Dec, and Radius. Once the missing values have been provided, the filter will be applied."
+    );
   });
-
 });
