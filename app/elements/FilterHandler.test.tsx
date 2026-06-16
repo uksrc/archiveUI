@@ -317,7 +317,7 @@ describe("FilterHandler position partial and pending behavior", () => {
     expect(screen.getByText("Radius")).toBeInTheDocument();
   });
 
-    it("default radius is added when RA is extant and Dec filter is added", () => {
+    it("default radius is added when Dec is extant and RA filter is added", () => {
     renderFilterHandlerWithSearch("?dec=10+20+30.456");
 
     submitFilter("RA", "10 20 30.123");
