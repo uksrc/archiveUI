@@ -5,4 +5,9 @@
 /.react-router/
 /build/
 
+# Playwright
+/playwright-report/
+/test-results/
+/blob-report/
+
 app/objects/ProxyTiles.ts
