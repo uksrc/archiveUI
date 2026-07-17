@@ -241,7 +241,7 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
                     <h1 className="text-3xl font-bold text-center">Data Products ({dataTileData.length})</h1>
                     {loading && <p>Loading observations...</p>}
                     {error && <p className="text-red-400">Error: {error}</p>}
-                    <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 scrollbar-thin overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
+                    <div className="gb_dataProduct pl-[12px] pt-[12px] pb-[32px] grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 overflow-y-auto overflow-x-hidden h-[95%] w-[100%]">
                        { 
                         dataTileData.map((dataTileData: DataTileDataType, index: number) =>
                         <DataTile key={index} {...dataTileData} />

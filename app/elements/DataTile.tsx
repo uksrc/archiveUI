@@ -98,7 +98,7 @@ function RenderTargets(dataProduct: DataTileDataType) {
 
 
 // text formatting for date
-function ProcessDate({date, separator="/"} : {date?: Date | undefined, separator?: string | undefined}={}): string {
+function ProcessDate({date, separator="/"} : {date?: Date | undefined, separator?: string | undefined}={}): string { 
     let processedDate = "date not set";
     if(date === undefined || date === null) {
         console.log(date);
@@ -136,7 +136,7 @@ export default function DataTile(dataProduct: DataTileDataType ){
         <>
         <div className="group cursor-pointer w-[160px] h-[170px] hover:z-10 hover:h-[170px] transition-[height] duration-300 ease-out">
             <a  href={dataProduct.urlToSource} target="_blank" rel="noopener noreferrer" className="w-[100%]">
-                <div className="gb_card flex flex-col items-center gap-1 bg-linear-to-bl from-white from-25% via-gray-200 via-40% to-gray-400 to-95% text-gray-200 p-1 rounded-md shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out group hover:overflow-y-auto scrollbar-thin">
+                <div className="gb_card flex flex-col items-center gap-1 bg-linear-to-bl from-white from-25% via-gray-200 via-40% to-gray-400 to-95% text-gray-200 p-1 rounded-md shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out group hover:overflow-y-auto">
                     <div className="group-hover:hidden flex flex-col items-center gap-1 h-[100%] w-[100%]">
                         <h1 className="text-m p-0 font-bold text-center text-gray-800">{" " + dataProduct.projectName}</h1>
                         <p className={"text-xs p-0 text-gray-800" + " " + GenerateId(dataProduct)}>{ProcessSourceData(dataProduct.sourceData)}</p>
