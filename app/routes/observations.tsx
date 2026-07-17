@@ -3,9 +3,9 @@ import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
 import FilterHandler from "../elements/FilterHandler";
 
-type Algorithm = { 
-  _id: number; 
-  name: string };
+// type Algorithm = { 
+//   _id: number; 
+//   name: string };
 
 type Telescope = { 
   _id: number; 
@@ -42,10 +42,11 @@ export type Observation = {
   id: string;
   collection: string;
   uri: string;
-  uriBucket: string;
-  intent: string;
+  //uriBucket: string;
+  //intent: string;
+  //number of sources is derived from metaReadGroups length
   metaReadGroups: string[];
-  algorithm: Algorithm;
+  //algorithm: Algorithm;
   telescope: Telescope;
   targetPosition: TargetPosition;
   planes: Plane[];
@@ -62,7 +63,6 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
   const upper = firstPlane?.energy?.bounds?.upper;
   const states = firstPlane?.polarization?.states ?? [];
   const bandpass = firstPlane?.energy?.bandpassName;
-  //const bandpass = firstPlane?.energy?.bandpassName;
   const target = observation.target;
   const _C_ = 2998792458; // speed of light in m/s
   return {
