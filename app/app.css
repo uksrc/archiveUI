@@ -13,6 +13,11 @@
 }
 
 
+/* .gb_card {
+  overscroll-behavior: contain;
+} 
+*/
+
 .gb_card:hover {
   transform: translateY(-0px) scale(1.14);
 }
