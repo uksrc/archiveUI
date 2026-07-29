@@ -41,6 +41,22 @@ export default defineConfig({
     video: "on-first-retry",
   },
 
+  // Start both the UI and API services for E2E runs.
+  webServer: [
+    {
+      command: "npm run dev:ui",
+      url: "http://localhost:27981/archive-gui/",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      command: "npm run dev:api",
+      url: "http://localhost:8080/archive/",
+      reuseExistingServer: !process.env.CI,
+      timeout: 300_000,
+    },
+  ],
+
   projects: [
     {
       name: "chromium",
