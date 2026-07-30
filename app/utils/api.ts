@@ -1,5 +1,6 @@
 import type { DataTileDataType } from "~/objects/Objects";
 import type { AuthContextProps } from "react-oidc-context";
+import { getEnvVar } from "./env";
 
 export async function apiGet(
   auth: AuthContextProps,
@@ -12,7 +13,7 @@ export async function apiGet(
     throw new Error("No access token available");
   }
 
-  const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`;
+  const API_BASE_URL = getEnvVar("VITE_API_BASE_URL");
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "GET",
     signal,

@@ -1,6 +1,7 @@
 import { useLoaderData, useNavigate } from "react-router";
 import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
+import { getEnvVar } from "~/utils/env";
 import FilterHandler from "../elements/FilterHandler";
 
 type Algorithm = { 
@@ -97,7 +98,7 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
 }
 
 export async function loader({ request }: { request: Request }) {
-    const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`;
+    const API_BASE_URL = getEnvVar("VITE_API_BASE_URL");
 
     const requestUrl = new URL(request.url);
 
