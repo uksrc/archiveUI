@@ -98,7 +98,7 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
 }
 
 export async function loader({ request }: { request: Request }) {
-    const API_BASE_URL = getEnvVar("VITE_API_BASE_URL");
+    const API_BASE_URL = getEnvVar("SERVICE_HOST_URL");
 
     const requestUrl = new URL(request.url);
 

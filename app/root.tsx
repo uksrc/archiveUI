@@ -23,9 +23,9 @@ import { getEnvVar } from "~/utils/env";
 
 // Define the OIDC configuration for authentication
 const oidcCoinfig = {
-  authority: getEnvVar("VITE_OIDC_AUTHORITY"),
-  client_id: getEnvVar("VITE_OIDC_CLIENT_ID"),
-  redirect_uri: getEnvVar("VITE_OIDC_REDIRECT_URI"),
+  authority: getEnvVar("OIDC_SERVER_URL"),
+  client_id: getEnvVar("OIDC_CLIENT_ID"),
+  redirect_uri: getEnvVar("OIDC_AUTH_CALLBACK"),
   post_logout_redirect_uri: getEnvVar("VITE_OIDC_POST_LOGOUT_REDIRECT_URI"),
   response_type: "code",
   scope: "openid profile email",

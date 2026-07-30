@@ -117,7 +117,7 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE_URL = getEnvVar("VITE_API_BASE_URL");
+  const API_BASE_URL = getEnvVar("SERVICE_HOST_URL");
   
   const allowedParams = [
     "ra", 
