@@ -18,6 +18,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig(({mode}) => ({
   base: "/archive-gui/",
+  envPrefix: ["VITE_", "SERVICE_HOST_", "OIDC_"],
   plugins: [tailwindcss(), mode !== "test" && reactRouter(), tsconfigPaths()].filter(Boolean),
   server: {
     port: 27981,

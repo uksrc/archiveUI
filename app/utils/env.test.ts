@@ -1,20 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
-import { getEnvVar } from "./env";
+import { getEnvVar } from "~/utils/env";
 
 describe("getEnvVar", () => {
-  it("prefers process environment values over fallback defaults", () => {
-    vi.stubEnv("SERVICE_HOST_URL", "https://system.example");
-
-    expect(getEnvVar("SERVICE_HOST_URL", "https://fallback.example")).toBe(
-      "https://system.example"
-    );
+  it("reads deployment-style OIDC keys from process env", () => {
+    vi.stubEnv("OIDC_SERVER_URL", "https://oidc.example");
+    expect(getEnvVar("OIDC_SERVER_URL")).toBe("https://oidc.example");
   });
 
-  it("falls back to the provided default when no value is present", () => {
-    vi.unstubAllEnvs();
+  it("reads deployment-style callback key from process env", () => {
+    vi.stubEnv("OIDC_AUTH_CALLBACK", "https://service.example/archive-gui/auth/callback");
+    expect(getEnvVar("OIDC_AUTH_CALLBACK")).toBe("https://service.example/archive-gui/auth/callback");
+  });
 
-    expect(getEnvVar("SERVICE_HOST_URL", "https://fallback.example")).toBe(
-      "https://fallback.example"
-    );
+  it("falls back when value is missing", () => {
+    vi.unstubAllEnvs();
+    expect(getEnvVar("SERVICE_HOST_URL", "https://fallback.example")).toBe("https://fallback.example");
   });
 });
