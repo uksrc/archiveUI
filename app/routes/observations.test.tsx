@@ -62,7 +62,7 @@ function createObservation(overrides: Partial<Observation> = {}): Observation {
 
 describe("observations loader", () => {
   beforeEach(() => {
-    vi.stubEnv("VITE_API_BASE_URL", "https://api.example.test");
+    vi.stubEnv("SERVICE_HOST_URL", "https://api.example.test");
     vi.stubGlobal("fetch", fetchMock);
     fetchMock.mockReset();
   });

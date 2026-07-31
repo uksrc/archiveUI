@@ -19,13 +19,17 @@ import { AuthProvider, useAuth } from "react-oidc-context";
 
 import "./app.css";
 import "./SRC_colours.css";
+import { getEnvVar } from "~/utils/env";
+
+const serviceHostUrl = getEnvVar("SERVICE_HOST_URL").replace(/\/+$/, "");
+const postLogoutRedirectUri = serviceHostUrl ? `${serviceHostUrl}/archive-gui` : "";
 
 // Define the OIDC configuration for authentication
 const oidcCoinfig = {
-  authority: `${import.meta.env.VITE_OIDC_AUTHORITY}`,
-  client_id: `${import.meta.env.VITE_OIDC_CLIENT_ID}`,
-  redirect_uri: `${import.meta.env.VITE_OIDC_REDIRECT_URI}`,
-  post_logout_redirect_uri: `${import.meta.env.VITE_OIDC_POST_LOGOUT_REDIRECT_URI}`,
+  authority: getEnvVar("OIDC_SERVER_URL"),
+  client_id: getEnvVar("OIDC_CLIENT_ID"),
+  redirect_uri: getEnvVar("OIDC_AUTH_CALLBACK"),
+  post_logout_redirect_uri: postLogoutRedirectUri,
   response_type: "code",
   scope: "openid profile email",
   automaticSilentRenew: true,
