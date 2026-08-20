@@ -21,7 +21,7 @@ import "./app.css";
 import "./SRC_colours.css";
 import { getEnvVar } from "~/utils/env";
 
-const serviceHostUrl = getEnvVar("SERVICE_HOST_URL").replace(/\/+$/, "");
+const serviceHostUrl = getEnvVar("SERVICE_HOST").replace(/\/+$/, "");
 const postLogoutRedirectUri = serviceHostUrl ? `${serviceHostUrl}/archive-gui` : "";
 
 // Define the OIDC configuration for authentication

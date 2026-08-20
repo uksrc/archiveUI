@@ -14,6 +14,6 @@ describe("getEnvVar", () => {
 
   it("falls back when value is missing", () => {
     vi.unstubAllEnvs();
-    expect(getEnvVar("SERVICE_HOST_URL", "https://fallback.example")).toBe("https://fallback.example");
+    expect(getEnvVar("SERVICE_HOST", "https://fallback.example")).toBe("https://fallback.example");
   });
 });
