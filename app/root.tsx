@@ -6,8 +6,10 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useLoaderData,
+  redirect,
 } from "react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import type { Route } from "./+types/root";
 import type { 
@@ -19,26 +21,8 @@ import { AuthProvider, useAuth } from "react-oidc-context";
 
 import "./app.css";
 import "./SRC_colours.css";
-import { getEnvVar } from "~/utils/env";
 
-const serviceHostUrl = getEnvVar("SERVICE_HOST").replace(/\/+$/, "");
-const postLogoutRedirectUri = serviceHostUrl ? `${serviceHostUrl}/archive-gui` : "";
-
-// Define the OIDC configuration for authentication
-const oidcCoinfig = {
-  authority: getEnvVar("OIDC_SERVER_URL"),
-  client_id: getEnvVar("OIDC_CLIENT_ID"),
-  redirect_uri: getEnvVar("OIDC_AUTH_CALLBACK"),
-  post_logout_redirect_uri: postLogoutRedirectUri,
-  response_type: "code",
-  scope: "openid profile email",
-  automaticSilentRenew: true,
-  loadUserInfo: true,
-  onSigninCallback: () => {
-    // Clear OIDC query params from the callback URL without changing route here.
-    window.history.replaceState({}, document.title, window.location.pathname);
-  },
-};
+import { getPublicRuntimeConfig } from "./config/runtime.server";
 
 
 // Externally defined stuff
@@ -55,6 +39,11 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const publicRuntimeConfig = getPublicRuntimeConfig();
+  return { publicRuntimeConfig };
+}
+
 // log in function
 export function LoginButton() {
   const auth = useAuth();
@@ -69,6 +58,7 @@ export function LoginButton() {
   );
 }
 
+// log out function
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -87,6 +77,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Component to ensure user is authenticated before rendering children
 function RequiredAuth({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
   const location = useLocation();
@@ -148,18 +139,41 @@ function RequiredAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Main App component
 export default function App() {
+
+  const { publicRuntimeConfig } = useLoaderData<typeof loader>();
+  // Define the OIDC configuration for authentication
+  const oidcConfig = useMemo(() => {
+    const serviceHostUrl = publicRuntimeConfig.SERVICE_HOST.replace(/\/+$/, "");
+    const postLogoutRedirectUri = serviceHostUrl ? `${serviceHostUrl}/archive-gui` : "";
+
+    return {    
+      authority: publicRuntimeConfig.OIDC_SERVER_URL,
+      client_id: publicRuntimeConfig.OIDC_CLIENT_ID,
+      redirect_uri: publicRuntimeConfig.OIDC_AUTH_CALLBACK,
+      post_logout_redirect_uri: postLogoutRedirectUri,
+      response_type: "code",
+      scope: "openid profile email",
+      automaticSilentRenew: true,
+      loadUserInfo: true,
+      onSigninCallback: () => {
+        // Clear OIDC query params from the callback URL without changing route here.
+        window.history.replaceState({}, document.title, window.location.pathname);
+      },
+    };
+  }, [publicRuntimeConfig]);
+   
   return (
-    <AuthProvider {...oidcCoinfig}>
+    <AuthProvider {...oidcConfig}>
       <RequiredAuth>
         <Outlet />
       </RequiredAuth>
    </AuthProvider>
   );
-  //return <Outlet />;
 }
 
-
+// Error boundary component to handle errors in the app
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oh Man!";
   let details = "An unexpected error occurred.";
