@@ -3,6 +3,7 @@ import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
 import { getEnvVar } from "~/utils/env";
 import FilterHandler from "../elements/FilterHandler";
+import { getRuntimeConfig } from "~/config/runtime.server";
 
 type Algorithm = { 
   _id: number; 
@@ -98,7 +99,9 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
 }
 
 export async function loader({ request }: { request: Request }) {
-    const API_BASE_URL = getEnvVar("SERVICE_HOST");
+    //const API_BASE_URL = getEnvVar("SERVICE_HOST");
+    const { SERVICE_HOST } = getRuntimeConfig();
+    const API_BASE_URL = SERVICE_HOST.replace(/\/+$/, ""); // Remove trailing slashes if any
 
     const requestUrl = new URL(request.url);
 

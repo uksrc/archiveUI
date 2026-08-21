@@ -107,9 +107,10 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
 
 type ArchiveServiceProps = {
   observations?: Observation[];
+  apiBaseUrl?: string; // optional prop to override the API base URL
 };
 
-export function ArchiveService({ observations = [] }: ArchiveServiceProps) 
+export function ArchiveService({ observations = [], apiBaseUrl }: ArchiveServiceProps) 
 {
   const auth = useAuth();
   const [searchParams] = useSearchParams();
@@ -117,7 +118,10 @@ export function ArchiveService({ observations = [] }: ArchiveServiceProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE_URL = getEnvVar("SERVICE_HOST");
+  //const API_BASE_URL = getEnvVar("SERVICE_HOST");
+  const API_BASE_URL = (apiBaseUrl ?? "").replace(/\/+$/, ""); // Remove trailing slashes if any
+
+
   
   const allowedParams = [
     "ra", 

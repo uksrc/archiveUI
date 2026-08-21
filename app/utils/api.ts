@@ -5,7 +5,8 @@ import { getEnvVar } from "./env";
 export async function apiGet(
   auth: AuthContextProps,
   path: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  apiBaseUrl?: string
 ) {
   const token = auth.user?.access_token;
 
@@ -13,7 +14,9 @@ export async function apiGet(
     throw new Error("No access token available");
   }
 
-  const API_BASE_URL = getEnvVar("SERVICE_HOST");
+    // Remove trailing slashes if any
+  //const API_BASE_URL = apiBaseUrl || getEnvVar("SERVICE_HOST").replace(/\/+$/, ""); 
+  const API_BASE_URL = (apiBaseUrl ?? "").replace(/\/+$/, ""); 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "GET",
     signal,
