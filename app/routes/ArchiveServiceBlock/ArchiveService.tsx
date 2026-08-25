@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import FilterHandler from "../../elements/FilterHandler";
 import DataTile from "../../elements/DataTile";
-import { proxyTiles } from "~/objects/Proxy";
+//import { proxyTiles } from "~/objects/Proxy";
 import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
-import { getEnvVar } from "~/utils/env";
+//import { getEnvVar } from "~/utils/env";
 import { AstroLib } from "@tsastro/astrolib";
 import { useAuth } from "react-oidc-context";
 import { useSearchParams } from "react-router"; 
@@ -118,7 +118,6 @@ export function ArchiveService({ observations = [], apiBaseUrl }: ArchiveService
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  //const API_BASE_URL = getEnvVar("SERVICE_HOST");
   const API_BASE_URL = (apiBaseUrl ?? "").replace(/\/+$/, ""); // Remove trailing slashes if any
 
 

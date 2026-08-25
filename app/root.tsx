@@ -7,15 +7,12 @@ import {
   ScrollRestoration,
   useLocation,
   useLoaderData,
-  redirect,
 } from "react-router";
 import { useEffect, useMemo, useRef } from "react";
 
 import type { Route } from "./+types/root";
 import type { 
-  LinksFunction,
   LoaderFunctionArgs,
-  ActionFunctionArgs,
 } from "react-router";
 import { AuthProvider, useAuth } from "react-oidc-context";
 
