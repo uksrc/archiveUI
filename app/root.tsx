@@ -142,7 +142,7 @@ export default function App() {
   const { publicRuntimeConfig } = useLoaderData<typeof loader>();
   // Define the OIDC configuration for authentication
   const oidcConfig = useMemo(() => {
-    const serviceHostUrl = publicRuntimeConfig.SERVICE_HOST.replace(/\/+$/, "");
+    const serviceHostUrl = publicRuntimeConfig.SERVICE_HOST_URL.replace(/\/+$/, "");
     const postLogoutRedirectUri = serviceHostUrl ? `${serviceHostUrl}/archive-gui` : "";
 
     return {    

@@ -13,7 +13,7 @@ function requiredEnvVar(name: string): string {
 // Export the runtime configuration object, populated with values from environment variables.
 export function getRuntimeConfig(): RuntimeConfig { 
     return { 
-    SERVICE_HOST: requiredEnvVar("SERVICE_HOST"),
+    SERVICE_HOST_URL: requiredEnvVar("SERVICE_HOST_URL"),
     OIDC_SERVER_URL: requiredEnvVar("OIDC_SERVER_URL"),
     OIDC_CLIENT_ID: requiredEnvVar("OIDC_CLIENT_ID"),
     OIDC_AUTH_CALLBACK: requiredEnvVar("OIDC_AUTH_CALLBACK")

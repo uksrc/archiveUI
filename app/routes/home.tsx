@@ -13,10 +13,10 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const rootData = useRouteLoaderData("root") as
-  | { publicRuntimeConfig: {SERVICE_HOST: string} }  
+  | { publicRuntimeConfig: {SERVICE_HOST_URL: string} }  
   | undefined;
 
-  const apiBaseUrl = rootData?.publicRuntimeConfig?.SERVICE_HOST?.replace(/\/+$/, ""); // Remove trailing slashes if any
+  const apiBaseUrl = rootData?.publicRuntimeConfig?.SERVICE_HOST_URL?.replace(/\/+$/, ""); // Remove trailing slashes if any
 
   return <ArchiveService apiBaseUrl={apiBaseUrl}/>;
 };

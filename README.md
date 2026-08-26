@@ -7,7 +7,7 @@ At startup, the server reads required environment variables in runtime.server.ts
 Missing required values fail fast with a clear error.
 
 ### Required Environment Variables
-SERVICE_HOST
+SERVICE_HOST_URL
 OIDC_SERVER_URL
 OIDC_CLIENT_ID
 OIDC_AUTH_CALLBACK
@@ -26,7 +26,7 @@ start script preloads dotenv before serving built output
 Recommended local file: .env
 
 Example values:
-SERVICE_HOST=http://localhost:8080/
+SERVICE_HOST_URL=http://localhost:8080/
 OIDC_SERVER_URL=https://ska-iam.stfc.ac.uk/
 OIDC_CLIENT_ID=your-client-id
 OIDC_AUTH_CALLBACK=http://localhost:27981/archive-gui/auth/callback
@@ -41,8 +41,8 @@ Deployment env section to wire values into the container process
 This enables one image to be promoted across environments with environment-only config changes.
 
 ### Troubleshooting
-Error: Missing required environment variable: SERVICE_HOST
-Cause: SERVICE_HOST not set in runtime environment.
+Error: Missing required environment variable: SERVICE_HOST_URL
+Cause: SERVICE_HOST_URL not set in runtime environment.
 Error: Missing required environment variable: OIDC_*
 Cause: one of the required OIDC values is missing.
 Error: API base URL is not defined

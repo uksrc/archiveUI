@@ -98,8 +98,8 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
 }
 
 export async function loader({ request }: { request: Request }) {
-    const { SERVICE_HOST } = getRuntimeConfig();
-    const API_BASE_URL = SERVICE_HOST.replace(/\/+$/, ""); // Remove trailing slashes if any
+    const { SERVICE_HOST_URL } = getRuntimeConfig();
+    const API_BASE_URL = SERVICE_HOST_URL.replace(/\/+$/, ""); // Remove trailing slashes if any
 
     const requestUrl = new URL(request.url);
 

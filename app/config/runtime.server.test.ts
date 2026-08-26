@@ -5,7 +5,7 @@ import { getPublicRuntimeConfig, getRuntimeConfig } from "./runtime.server";
 const ORIGINAL_ENV = process.env;
 
 function setRequiredRuntimeEnv() {
-  process.env.SERVICE_HOST = "https://service.example";
+  process.env.SERVICE_HOST_URL = "https://service.example";
   process.env.OIDC_SERVER_URL = "https://oidc.example";
   process.env.OIDC_CLIENT_ID = "client-id-123";
   process.env.OIDC_AUTH_CALLBACK = "https://service.example/archive-gui/auth/callback";
@@ -20,19 +20,19 @@ describe("runtime.server", () => {
     setRequiredRuntimeEnv();
 
     expect(getRuntimeConfig()).toEqual({
-      SERVICE_HOST: "https://service.example",
+      SERVICE_HOST_URL: "https://service.example",
       OIDC_SERVER_URL: "https://oidc.example",
       OIDC_CLIENT_ID: "client-id-123",
       OIDC_AUTH_CALLBACK: "https://service.example/archive-gui/auth/callback",
     });
   });
 
-  it("throws a helpful error when required SERVICE_HOST is missing", () => {
+  it("throws a helpful error when required SERVICE_HOST_URL is missing", () => {
     setRequiredRuntimeEnv();
-    delete process.env.SERVICE_HOST;
+    delete process.env.SERVICE_HOST_URL;
 
     expect(() => getRuntimeConfig()).toThrow(
-      "Missing required environment variable: SERVICE_HOST"
+      "Missing required environment variable: SERVICE_HOST_URL"
     );
   });
 
@@ -41,7 +41,7 @@ describe("runtime.server", () => {
     process.env.EXTRA_SECRET = "do-not-expose";
 
     expect(getPublicRuntimeConfig()).toEqual({
-      SERVICE_HOST: "https://service.example",
+      SERVICE_HOST_URL: "https://service.example",
       OIDC_SERVER_URL: "https://oidc.example",
       OIDC_CLIENT_ID: "client-id-123",
       OIDC_AUTH_CALLBACK: "https://service.example/archive-gui/auth/callback",
