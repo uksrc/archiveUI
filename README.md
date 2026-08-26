@@ -29,7 +29,7 @@ Example values:
 SERVICE_HOST_URL=http://localhost:8080/
 OIDC_SERVER_URL=https://ska-iam.stfc.ac.uk/
 OIDC_CLIENT_ID=your-client-id
-OIDC_AUTH_CALLBACK=http://localhost:27981/archive-gui/auth/callback
+OIDC_AUTH_CALLBACK=http://localhost:27981/archive-gui/auth-callback
 
 ### Production and Kubernetes
 Do not rely on .env files inside containers in production.

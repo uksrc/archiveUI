@@ -78,7 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 function RequiredAuth({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
   const location = useLocation();
-  const isAuthCallbackRoute = location.pathname.endsWith("/auth/callback");
+  const isAuthCallbackRoute = location.pathname.endsWith("/auth-callback");
   const redirectStartedRef = useRef(false);
   console.log("Auth state:", auth);
 

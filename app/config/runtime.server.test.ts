@@ -8,7 +8,7 @@ function setRequiredRuntimeEnv() {
   process.env.SERVICE_HOST_URL = "https://service.example";
   process.env.OIDC_SERVER_URL = "https://oidc.example";
   process.env.OIDC_CLIENT_ID = "client-id-123";
-  process.env.OIDC_AUTH_CALLBACK = "https://service.example/archive-gui/auth/callback";
+  process.env.OIDC_AUTH_CALLBACK = "https://service.example/archive-gui/auth-callback";
 }
 
 afterEach(() => {
@@ -23,7 +23,7 @@ describe("runtime.server", () => {
       SERVICE_HOST_URL: "https://service.example",
       OIDC_SERVER_URL: "https://oidc.example",
       OIDC_CLIENT_ID: "client-id-123",
-      OIDC_AUTH_CALLBACK: "https://service.example/archive-gui/auth/callback",
+      OIDC_AUTH_CALLBACK: "https://service.example/archive-gui/auth-callback",
     });
   });
 
@@ -44,7 +44,7 @@ describe("runtime.server", () => {
       SERVICE_HOST_URL: "https://service.example",
       OIDC_SERVER_URL: "https://oidc.example",
       OIDC_CLIENT_ID: "client-id-123",
-      OIDC_AUTH_CALLBACK: "https://service.example/archive-gui/auth/callback",
+      OIDC_AUTH_CALLBACK: "https://service.example/archive-gui/auth-callback",
     });
     expect(getPublicRuntimeConfig()).not.toHaveProperty("EXTRA_SECRET");
   });

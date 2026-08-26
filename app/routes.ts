@@ -7,7 +7,7 @@ export default [
         "routes/observations.tsx"
     ),
     route(
-        "/auth/callback",
+        "/auth-callback",
         "./routes/AuthCallback.tsx"
     ),
 
