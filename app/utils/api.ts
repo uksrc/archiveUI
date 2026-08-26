@@ -1,10 +1,10 @@
 import type { DataTileDataType } from "~/objects/Objects";
 import type { AuthContextProps } from "react-oidc-context";
-import { getEnvVar } from "./env";
 
 export async function apiGet(
   auth: AuthContextProps,
   path: string,
+  apiBaseUrl: string,
   signal?: AbortSignal
 ) {
   const token = auth.user?.access_token;
@@ -13,7 +13,13 @@ export async function apiGet(
     throw new Error("No access token available");
   }
 
-  const API_BASE_URL = getEnvVar("SERVICE_HOST_URL");
+  // Remove trailing slashes if any
+  const API_BASE_URL = (apiBaseUrl ?? "").replace(/\/+$/, ""); 
+
+  if(!API_BASE_URL || API_BASE_URL === "") {
+    throw new Error("API base URL is not defined");
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "GET",
     signal,

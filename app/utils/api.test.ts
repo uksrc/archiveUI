@@ -3,6 +3,7 @@ import { apiGet, fetchDataTiles, mjdSecToDate } from "./api";
 
 describe("api utilities", () => {
   const fetchMock = vi.fn();
+  const BASE_URL = "https://api.example.test";
 
   beforeEach(() => {
     vi.stubGlobal("fetch", fetchMock);
@@ -20,8 +21,19 @@ describe("api utilities", () => {
         user: undefined,
       } as any;
 
-      await expect(apiGet(auth, "/archive/search")).rejects.toThrow(
+      await expect(apiGet(auth, "/archive/search", BASE_URL, undefined)).rejects.toThrow(
         "No access token available"
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("throws when API base URL is missing", async () => {
+      const auth = {
+        user: { access_token: "token-missing-base" },
+      } as any;
+
+      await expect(apiGet(auth, "/archive/search", "", undefined)).rejects.toThrow(
+        "API base URL is not defined"
       );
       expect(fetchMock).not.toHaveBeenCalled();
     });
@@ -37,7 +49,7 @@ describe("api utilities", () => {
         json: vi.fn(),
       });
 
-      await expect(apiGet(auth, "/archive/search")).rejects.toThrow(
+      await expect(apiGet(auth, "/archive/search", BASE_URL, undefined)).rejects.toThrow(
         "Unauthorised: token missing, expired, or rejected"
       );
     });
@@ -53,7 +65,7 @@ describe("api utilities", () => {
         json: vi.fn(),
       });
 
-      await expect(apiGet(auth, "/archive/search")).rejects.toThrow(
+      await expect(apiGet(auth, "/archive/search", BASE_URL, undefined)).rejects.toThrow(
         "Forbidden: token valid but insufficient permissions"
       );
     });
@@ -69,7 +81,7 @@ describe("api utilities", () => {
         json: vi.fn(),
       });
 
-      await expect(apiGet(auth, "/archive/search")).rejects.toThrow(
+      await expect(apiGet(auth, "/archive/search", BASE_URL, undefined)).rejects.toThrow(
         "API request failed: 500"
       );
     });
@@ -86,17 +98,44 @@ describe("api utilities", () => {
         json: vi.fn().mockResolvedValue(payload),
       });
 
-      const result = await apiGet(auth, "/archive/search");
+      const result = await apiGet(auth, "/archive/search", BASE_URL, undefined);
 
       expect(result).toEqual(payload);
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining("/archive/search"),
+        "https://api.example.test/archive/search",
         expect.objectContaining({
           method: "GET",
           headers: expect.objectContaining({
             Accept: "application/json",
             Authorization: "Bearer token-ok",
+          }),
+        })
+      );
+    });
+
+    it("normalises trailing slash in API base URL", async () => {
+      const auth = {
+        user: { access_token: "token-slash" },
+      } as any;
+      const payload = { observations: [{ id: "obs-2" }] };
+
+      fetchMock.mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: vi.fn().mockResolvedValue(payload),
+      });
+
+      const result = await apiGet(auth, "/archive/search", "https://api.example.test/", undefined);
+
+      expect(result).toEqual(payload);
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://api.example.test/archive/search",
+        expect.objectContaining({
+          method: "GET",
+          headers: expect.objectContaining({
+            Accept: "application/json",
+            Authorization: "Bearer token-slash",
           }),
         })
       );

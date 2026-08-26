@@ -2,6 +2,7 @@ import type { Route } from "./+types/home";
 import {
   ArchiveService,
 } from "./ArchiveServiceBlock/ArchiveService";
+import { useRouteLoaderData } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,5 +12,13 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <ArchiveService />;
-}
+  const rootData = useRouteLoaderData("root") as
+  | { publicRuntimeConfig: {SERVICE_HOST: string} }  
+  | undefined;
+
+  const apiBaseUrl = rootData?.publicRuntimeConfig?.SERVICE_HOST?.replace(/\/+$/, ""); // Remove trailing slashes if any
+
+  return <ArchiveService apiBaseUrl={apiBaseUrl}/>;
+};
+
+  
