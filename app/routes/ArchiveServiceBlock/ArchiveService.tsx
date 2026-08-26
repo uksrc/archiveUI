@@ -4,7 +4,6 @@ import DataTile from "../../elements/DataTile";
 //import { proxyTiles } from "~/objects/Proxy";
 import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
-//import { getEnvVar } from "~/utils/env";
 import { AstroLib } from "@tsastro/astrolib";
 import { useAuth } from "react-oidc-context";
 import { useSearchParams } from "react-router"; 

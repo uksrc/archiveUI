@@ -1,6 +1,5 @@
 import type { DataTileDataType } from "~/objects/Objects";
 import type { AuthContextProps } from "react-oidc-context";
-//import { getEnvVar } from "./env";
 
 export async function apiGet(
   auth: AuthContextProps,

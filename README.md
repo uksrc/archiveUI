@@ -1,8 +1,63 @@
-# Welcome to React Router!
+# Welcome to UKSRC|e-Merlin Archive UI!
 
-A modern, production-ready template for building full-stack React applications using React Router.
+## Runtime Configuration
+This application uses server-side runtime configuration, not build-time frontend env injection.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+At startup, the server reads required environment variables in runtime.server.ts.
+Missing required values fail fast with a clear error.
+
+### Required Environment Variables
+SERVICE_HOST
+OIDC_SERVER_URL
+OIDC_CLIENT_ID
+OIDC_AUTH_CALLBACK
+
+### How Config Flows
+Environment variables are read on the server in runtime.server.ts.
+Public-safe config is exposed by the root loader in root.tsx.
+The app reads loader data and builds OIDC config in root.tsx.
+Route components receive required runtime values via loader data and props (for example home.tsx passing apiBaseUrl to ArchiveService.tsx).
+Shared API helper expects explicit apiBaseUrl in api.ts.
+Local Development
+Local development uses dotenv preloading from scripts in package.json.
+
+dev script preloads dotenv before starting React Router
+start script preloads dotenv before serving built output
+Recommended local file: .env
+
+Example values:
+SERVICE_HOST=http://localhost:8080/
+OIDC_SERVER_URL=https://ska-iam.stfc.ac.uk/
+OIDC_CLIENT_ID=your-client-id
+OIDC_AUTH_CALLBACK=http://localhost:27981/archive-gui/auth/callback
+
+### Production and Kubernetes
+Do not rely on .env files inside containers in production.
+Inject variables at runtime using platform environment configuration:
+
+Kubernetes ConfigMap for non-sensitive values
+Kubernetes Secret for sensitive values
+Deployment env section to wire values into the container process
+This enables one image to be promoted across environments with environment-only config changes.
+
+### Troubleshooting
+Error: Missing required environment variable: SERVICE_HOST
+Cause: SERVICE_HOST not set in runtime environment.
+Error: Missing required environment variable: OIDC_*
+Cause: one of the required OIDC values is missing.
+Error: API base URL is not defined
+Cause: apiBaseUrl was not propagated to an API caller.
+Tests
+Runtime-config validation tests are in runtime.server.test.ts.
+These verify:
+
+required keys are enforced
+missing keys throw expected errors
+only public runtime keys are exposed
+
+
+
+This system is based on React Router, a modern, production-ready template for building full-stack React applications.
 
 ## Features
 
@@ -85,6 +140,3 @@ Make sure to deploy the output of `npm run build`
 
 This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
 
----
-
-Built with ❤️ using React Router.
