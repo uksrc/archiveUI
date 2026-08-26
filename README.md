@@ -55,7 +55,7 @@ required keys are enforced
 missing keys throw expected errors
 only public runtime keys are exposed
 
-
+# Background
 
 This system is based on React Router, a modern, production-ready template for building full-stack React applications.
 
