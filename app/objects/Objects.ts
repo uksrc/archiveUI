@@ -13,7 +13,7 @@ export type DataTileDataType = {
     projectName?: string;
     runName?: string;
     sources?: string[];
-    sourceData?: SourceType[];
+    targetData?: SourceType[];
     band?: string;
     startDate?: Date;
     endDate?: Date;
@@ -25,7 +25,7 @@ export type DataTileDataType = {
     frequency?: string;
     freqUnit?: string;
     urlToSource?: string;
-    targets?: string[];
+    sourcesData?: SourceType[];
 }
 
 // sources type

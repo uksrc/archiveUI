@@ -3,6 +3,7 @@ import type { DataTileDataType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
 import FilterHandler from "../elements/FilterHandler";
 import { getRuntimeConfig } from "~/config/runtime.server";
+import type { SourceType } from "~/objects/Objects";
 
 type Algorithm = { 
   _id: number; 
@@ -83,8 +84,16 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
     freqUnit: "GHz",
     polarisation: states,
     numberOfSources: observation.metaReadGroups?.length ?? 0,
-    targets: observation.target.keywords ?? [],
-    sourceData: [
+    //targets: (observation.target.keywords as unknown) as SourceType[] ?? [],
+    sourcesData: observation.target.keywords.map((keyword) => {//note sourceData should be targetData and targets should be sourecs
+        const parsedObj = JSON.parse(keyword);
+        return {
+          name: parsedObj.name,
+          ra: parsedObj.ra,
+          dec: parsedObj.dec,
+        };
+      }),
+    targetData: [ //note sourceData should be targetData and targets should be sourecs
       {
         name: target.name,
         ra: `${observation.targetPosition.coordinates.cval1}`,
@@ -183,8 +192,8 @@ export default function Observations() {
           <p>freqUnit: {tile.freqUnit}</p>
           <p>polarisation: {(tile.polarisation ?? []).join(", ")}</p>
           <p>numberOfSources: {tile.numberOfSources}</p>
-          <p>targets: {(tile.targets ?? []).join(", ")}</p>
-          <p>sourceData: {(tile.sourceData ?? []).map((source) => `${source.name} (RA: ${source.ra}, Dec: ${source.dec})`).join("; ")}</p>
+          <p>targets: {(tile.sourcesData ?? []).join(", ")}</p>
+          <p>targetData: {(tile.targetData ?? []).map((source) => `${source.name} (RA: ${source.ra}, Dec: ${source.dec})`).join("; ")}</p>
           <p>startDate: {tile.startDate?.toISOString()}</p>
           <p>endDate: {tile.endDate?.toISOString()}</p>
           </div >

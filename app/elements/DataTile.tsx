@@ -76,16 +76,16 @@ function RenderTargets(dataProduct: DataTileDataType) {
             <h1 className="text-m p-0 font-bold text-center text-gray-800">{" " + dataProduct.projectName}</h1>
             <p className={"pl-1 text-gray-800 v_" + GenerateId(dataProduct)}>{
                     dataProduct.antennas?.map((target, index) => (
-                        <span key={index} className="text-gray-800 text-xs text-center">
+                        <span key={index} className="text-blue-600 text-xs text-center">
                             {target + ' '} 
                         </span>
                     ))  
                 }
             </p>
             <p className={"pl-1 text-gray-800 v_" + GenerateId(dataProduct)}>{
-                    dataProduct.targets?.map((target, index) => (
+                    dataProduct.sourcesData?.map((source, index) => (
                         <span key={index} className="text-gray-800 text-xs font-bold text-center">
-                            {target + ' '}<br/> 
+                            {source.name + ' '}<br/> 
                         </span>
                     ))  
                 }
@@ -118,7 +118,7 @@ function GenerateId(dataProduct: DataTileDataType): string {
     return unique_id; 
 }
 
-function ProcessSourceData(sources: SourceType[] | undefined): string {
+function ProcessTargetData(sources: SourceType[] | undefined): string {
     if (sources === undefined || sources.length === 0) {
         return "source not found";
     }
@@ -139,7 +139,7 @@ export default function DataTile(dataProduct: DataTileDataType ){
                 <div className="gb_card flex flex-col items-center gap-1 bg-linear-to-bl from-white from-25% via-gray-200 via-40% to-gray-400 to-95% text-gray-200 p-1 rounded-md shadow-xl shadow-gray-500/60 h-[100%] w-[100%] hover:translate transition duration-220 ease-out group hover:overflow-y-auto">
                     <div className="group-hover:hidden flex flex-col items-center gap-1 h-[100%] w-[100%]">
                         <h1 className="text-m p-0 font-bold text-center text-gray-800">{" " + dataProduct.projectName}</h1>
-                        <p className={"text-xs p-0 text-gray-800" + " " + GenerateId(dataProduct)}>{ProcessSourceData(dataProduct.sourceData)}</p>
+                        <p className={"text-xs p-0 text-purple-600" + " " + GenerateId(dataProduct)}>{ProcessTargetData(dataProduct.targetData)}</p>
                         <p className="p-0 font-semibold bg-black w-[100%] text-center">{ProcessDate({date: dataProduct.startDate, separator: "\/"})}</p>
                         {/*<p className={"p-0 text-gray-800 " + GenerateId(dataProduct)}>
                             <span className="text-gray-800 text-xs font-bold ">  [{dataProduct.antennas}]</span>

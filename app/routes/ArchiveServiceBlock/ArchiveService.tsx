@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import FilterHandler from "../../elements/FilterHandler";
 import DataTile from "../../elements/DataTile";
 //import { proxyTiles } from "~/objects/Proxy";
-import type { DataTileDataType } from "~/objects/Objects";
+import type { DataTileDataType, SourceType } from "~/objects/Objects";
 import { mjdSecToDate } from "~/utils/api";
 import { AstroLib } from "@tsastro/astrolib";
 import { useAuth } from "react-oidc-context";
@@ -62,6 +62,24 @@ type ObservationsResponse = {
   observations: Observation[];
 };
 
+function getTargetName(target: string): string {
+  try {
+    const parsedTarget: unknown = JSON.parse(target);
+
+    if (
+      typeof parsedTarget === "object" &&
+      parsedTarget !== null &&
+      "name" in parsedTarget &&
+      typeof parsedTarget.name === "string"
+    ) {
+      return parsedTarget.name;
+    }
+  } catch {
+  }
+
+  return target;
+}
+
 
 function mapObservationToDataTile(observation: Observation): DataTileDataType {
   const firstPlane = observation.planes?.[0];
@@ -89,8 +107,8 @@ function mapObservationToDataTile(observation: Observation): DataTileDataType {
         : "unknown",  
     freqUnit: "GHz",
     polarisation: states,
-    targets: observation.target.keywords ?? [], // placeholder until we have a real value from the API
-    sourceData: [
+    sourcesData: observation.target.keywords.map((target) => ({ name: getTargetName(target), ra: "", dec: "" })) ?? [], // placeholder until we have a real value from the API
+    targetData: [
       {
         name: target.name,
         ra: `${observation.targetPosition.coordinates.cval1}`,

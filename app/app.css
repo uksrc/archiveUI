@@ -18,8 +18,12 @@
 } 
 */
 
-.gb_card:hover {
-  transform: translateY(-0px) scale(1.14);
+.gb_card {
+  transform-origin: bottom;
+}
+
+.group:hover .gb_card {
+  transform: translateY(0) scale(1.14);
 }
 
 .gb_traslucent {
